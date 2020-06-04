@@ -1,6 +1,58 @@
 import numpy as np
 
 
+class Angles(np.ndarray):
+    """
+    Angles as np.ndarray objects
+    Defaults to degrees if no convention given
+    Convenience for managing degree/radians
+    """
+
+    def __new__(cls, theta, convention: str = None):
+        obj = np.asarray(theta, dtype=np.float).view(cls)
+        obj.convention = obj.convention_parse(convention)
+        return obj
+
+    def __array_finalize_(self, obj):
+        if obj is None:
+            return
+        self.degrees = getattr(obj, 'degrees', None)
+        self.radians = getattr(obj, 'radians', None)
+        self.convention = getattr(obj, 'convention', None)
+        self.convention = self.convention_parse(self.convention)
+
+    def convention_parse(self, convention: str):
+        if convention is None:
+            return 'degrees'
+        elif convention.lower().startswith('d'):
+            return 'degrees'
+        elif convention.lower().startswith('r'):
+            return 'radians'
+        error_message = f"Unable to parse '{convention}' as either 'degrees' or 'radians'"
+        raise ValueError(error_message)
+
+    def set_convention(self, convention: str):
+        """
+        Tries to set convention to either 'degrees' or 'radians' based on the convention argument
+        :param convention: angle convention, 'degrees' or 'radians' (or some similar)
+        """
+        self.convention = self.convention_parse(convention)
+
+    def sin(self):
+        if self.convention == 'degrees':
+            return np.sin(np.deg2rad(self))
+        elif self.convention == 'radians':
+            return np.sin(self)
+        raise ValueError(f'Convention improperly set as {self.convention}')
+
+    def cos(self):
+        if self.convention == 'degrees':
+            return np.cos(np.deg2rad(self))
+        elif self.convention == 'radians':
+            return np.cos(self)
+        raise ValueError(f'Convention improperly set as {self.convention}')
+
+
 class RotationMatrix(np.ndarray):
     """
     Rotation matrices as (n, 3, 3) numpy arrays with attributes describing the rotations they parametrise
@@ -64,7 +116,9 @@ class RotationMatrix(np.ndarray):
         raise ValueError(error_message)
 
     def set_theta(self, theta: np.ndarray):
-        self.theta = np.asarray(theta)
+        if isinstance(theta, Angles):
+            self.theta = theta
+        self.theta = np.asarray(theta).view(Angles)
 
     def single_matrix_sanitation(self):
         """
@@ -88,7 +142,7 @@ class Theta2RotationMatrix:
             self.generate_rotation_matrices()
 
     def _preprocess(self, theta: np.ndarray, axis: str):
-        self._prepare_theta(theta)
+        self._parse_theta(theta)
         self._prepare_sin_theta()
         self._prepare_cos_theta()
         self.n = self.theta.size
@@ -107,18 +161,20 @@ class Theta2RotationMatrix:
                                                 axis=self.axis,
                                                 positive_ccw=True)
 
-    def _prepare_theta(self, theta: np.ndarray):
+    def _parse_theta(self, theta: np.ndarray):
         """
         Prepare theta input in degrees for rotation function vectorisation
         :param theta: array-like object containing theta in radians
         """
-        self.theta = np.asarray(np.deg2rad(theta)).reshape(-1)
+        if isinstance(theta, Angles):
+            self.theta = theta
+        self.theta = Angles(np.asarray(theta), convention='degrees')
 
     def _prepare_sin_theta(self):
-        self.sin_theta = np.sin(self.theta)
+        self.sin_theta = self.theta.sin()
 
     def _prepare_cos_theta(self):
-        self.cos_theta = np.cos(self.theta)
+        self.cos_theta = self.theta.cos()
 
     def _prepare_empty_rotation_matrix(self):
         """
