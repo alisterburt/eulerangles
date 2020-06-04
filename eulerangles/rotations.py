@@ -126,14 +126,62 @@ class MatrixFromTheta:
         return self.rotation_matrices
 
 
-def generate_elemental_rotation_matrix(theta: np.ndarray, axis: str):
+class RotX(MatrixFromTheta):
+    def __init__(self, theta: np.ndarray):
+        super().__init__(theta, axis='x')
+
+
+class RotY(MatrixFromTheta):
+    def __init__(self, theta: np.ndarray):
+        super().__init__(theta, axis='y')
+
+
+class RotZ(MatrixFromTheta):
+    def __init__(self, theta: np.ndarray):
+        super().__init__(theta, axis='z')
+
+
+def rotation_matrix_from_theta(theta: np.ndarray, axis: str):
     """
     Calculates a set of rotation matrices for CCW rotations around either the 'x', 'y' or 'z' axes by an angle
     (or angles) of theta
     :param theta: number or array-like object of rotation angles in degrees
     :param axis: 'x', 'y' or 'z' axis about which rotation will occur
-    :return: rotation matrix or rotation matrices
+    :return: rotation matrix or array of rotation matrices
     """
-    angle_calculator = MatrixFromTheta(theta, axis)
-    rotation_matrices = angle_calculator.get_rotation_matrices()
+    matrix_calculator = MatrixFromTheta(theta, axis)
+    rotation_matrices = matrix_calculator.get_rotation_matrices()
+    return rotation_matrices
+
+
+def rotx_from_theta(theta: np.ndarray):
+    """
+    Calculates a set of rotation matrices for CCW rotations around the x-axis by an angle (or angles) of theta
+    :param theta: number or array-like object of rotation angles in degrees
+    :return: rotation matrix or array of rotation matrices
+    """
+    matrix_calculator = RotX(theta)
+    rotation_matrices = matrix_calculator.get_rotation_matrices()
+    return rotation_matrices
+
+
+def roty_from_theta(theta: np.ndarray):
+    """
+    Calculates a set of rotation matrices for CCW rotations around the y-axis by an angle (or angles) of theta
+    :param theta: number or array-like object of rotation angles in degrees
+    :return: rotation matrix or array of rotation matrices
+    """
+    matrix_calculator = RotY(theta)
+    rotation_matrices = matrix_calculator.get_rotation_matrices()
+    return rotation_matrices
+
+
+def rotz_from_theta(theta: np.ndarray):
+    """
+    Calculates a set of rotation matrices for CCW rotations around the z-axis by an angle (or angles) of theta
+    :param theta: number or array-like object of rotation angles in degrees
+    :return: rotation matrix or array of rotation matrices
+    """
+    matrix_calculator = RotZ(theta)
+    rotation_matrices = matrix_calculator.get_rotation_matrices()
     return rotation_matrices

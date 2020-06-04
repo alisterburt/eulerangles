@@ -1,1 +1,1 @@
-from .rotations import generate_elemental_rotation_matrix
+from .rotations import rotation_matrix_from_theta
