@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 
-from eulerangles.rotations import MatrixFromTheta
+from eulerangles.rotations import Theta2RotationMatrix, RotationMatrix, RotX, RotY, RotZ
 
 
 class RotationsTest(TestCase):
@@ -16,8 +16,8 @@ class RotationsTest(TestCase):
     def assertEqual(self, *args, **kwargs):
         return assert_array_almost_equal(*args, **kwargs)
 
-    def test_rotate_x(self):
-        rotation_matrix = MatrixFromTheta(90, 'x').get_rotation_matrix()
+    def test_Theta2RotationMatrix_x(self):
+        rotation_matrix = Theta2RotationMatrix(90, 'x').get_rotation_matrix()
         result = rotation_matrix @ self.x
         self.assertEqual(result, self.x)
 
@@ -27,8 +27,8 @@ class RotationsTest(TestCase):
         result = rotation_matrix @ self.z
         self.assertEqual(result, -self.y)
 
-    def test_rotate_y(self):
-        rotation_matrix = MatrixFromTheta(90, 'y').get_rotation_matrix()
+    def test_Theta2RotationMatrix_y(self):
+        rotation_matrix = Theta2RotationMatrix(90, 'y').get_rotation_matrix()
         result = rotation_matrix @ self.x
         self.assertEqual(result, -self.z)
 
@@ -38,8 +38,8 @@ class RotationsTest(TestCase):
         result = rotation_matrix @ self.z
         self.assertEqual(result, self.x)
 
-    def test_rotate_z(self):
-        rotation_matrix = MatrixFromTheta(90, 'z').get_rotation_matrix()
+    def test_Theta2RotationMatrix_z(self):
+        rotation_matrix = Theta2RotationMatrix(90, 'z').get_rotation_matrix()
         result = rotation_matrix @ self.x
         self.assertEqual(result, self.y)
 
@@ -48,3 +48,25 @@ class RotationsTest(TestCase):
 
         result = rotation_matrix @ self.z
         self.assertEqual(result, self.z)
+
+    def test_RotationMatrix(self):
+        result = RotationMatrix(theta=90, axis='x') @ self.x
+        self.assertEqual(result, self.x)
+
+        result = RotationMatrix(theta=90, axis='y') @ self.x
+        self.assertEqual(result, -self.z)
+
+        result = RotationMatrix(theta=90, axis='z') @ self.x
+        self.assertEqual(result, self.y)
+
+    def test_RotZ(self):
+        result = RotZ(90) @ self.x
+        self.assertEqual(result, self.y)
+
+    def test_RotY(self):
+        result = RotY(90) @ self.x
+        self.assertEqual(result, -self.z)
+
+    def test_RotX(self):
+        result = RotX(90) @ self.x
+        self.assertEqual(result, self.x)
