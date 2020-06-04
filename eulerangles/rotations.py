@@ -8,9 +8,9 @@ class Angles(np.ndarray):
     Convenience for managing degree/radians
     """
 
-    def __new__(cls, theta, convention: str = None):
+    def __new__(cls, theta, unit: str = None):
         obj = np.asarray(theta, dtype=np.float).view(cls)
-        obj.convention = obj.convention_parse(convention)
+        obj.unit = obj.unit_parse(unit)
         return obj
 
     def __array_finalize_(self, obj):
@@ -18,10 +18,10 @@ class Angles(np.ndarray):
             return
         self.degrees = getattr(obj, 'degrees', None)
         self.radians = getattr(obj, 'radians', None)
-        self.convention = getattr(obj, 'convention', None)
-        self.convention = self.convention_parse(self.convention)
+        self.unit = getattr(obj, 'convention', None)
+        self.unit = self.unit_parse(self.unit)
 
-    def convention_parse(self, convention: str):
+    def unit_parse(self, convention: str):
         if convention is None:
             return 'degrees'
         elif convention.lower().startswith('d'):
@@ -36,21 +36,21 @@ class Angles(np.ndarray):
         Tries to set convention to either 'degrees' or 'radians' based on the convention argument
         :param convention: angle convention, 'degrees' or 'radians' (or some similar)
         """
-        self.convention = self.convention_parse(convention)
+        self.unit = self.unit_parse(convention)
 
     def sin(self):
-        if self.convention == 'degrees':
+        if self.unit == 'degrees':
             return np.sin(np.deg2rad(self))
-        elif self.convention == 'radians':
+        elif self.unit == 'radians':
             return np.sin(self)
-        raise ValueError(f'Convention improperly set as {self.convention}')
+        raise ValueError(f"Unit improperly set as {self.unit} instead of 'degrees' or 'radians'")
 
     def cos(self):
-        if self.convention == 'degrees':
+        if self.unit == 'degrees':
             return np.cos(np.deg2rad(self))
-        elif self.convention == 'radians':
+        elif self.unit == 'radians':
             return np.cos(self)
-        raise ValueError(f'Convention improperly set as {self.convention}')
+        raise ValueError(f"Unit improperly set as {self.unit} instead of 'degrees' or 'radians'")
 
 
 class RotationMatrix(np.ndarray):
@@ -168,7 +168,7 @@ class Theta2RotationMatrix:
         """
         if isinstance(theta, Angles):
             self.theta = theta
-        self.theta = Angles(np.asarray(theta), convention='degrees')
+        self.theta = Angles(np.asarray(theta), unit='degrees')
 
     def _prepare_sin_theta(self):
         self.sin_theta = self.theta.sin()
