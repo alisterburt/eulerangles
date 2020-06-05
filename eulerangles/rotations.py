@@ -1,16 +1,20 @@
+from warnings import warn
+
 import numpy as np
+
+
+# from .conventions import RotationMatrixConvention
 
 
 class Angles(np.ndarray):
     """
-    Angles as np.ndarray objects
-    Defaults to degrees if no convention given
-    Convenience for managing degree/radians
+    Convenience for managing arrays of angles in degree/radians
     """
 
-    def __new__(cls, theta, unit: str = None):
+    def __new__(cls, theta, units: str = None, positive_ccw: bool = None):
         obj = np.asarray(theta, dtype=np.float).view(cls)
-        obj.unit = obj.unit_parse(unit)
+        obj.unit = obj.parse_units(units)
+        obj.positive_ccw = positive_ccw
         return obj
 
     def __array_finalize_(self, obj):
@@ -18,25 +22,20 @@ class Angles(np.ndarray):
             return
         self.degrees = getattr(obj, 'degrees', None)
         self.radians = getattr(obj, 'radians', None)
-        self.unit = getattr(obj, 'convention', None)
-        self.unit = self.unit_parse(self.unit)
+        unit = getattr(obj, 'convention', None)
+        self.unit = self.parse_units(unit)
+        self.positive_ccw = getattr(obj, 'positive_ccw', None)
 
-    def unit_parse(self, convention: str):
-        if convention is None:
+    def parse_units(self, units: str):
+        if units is None:
+            warn(f'No units supplied when creating {self.__name__} object, defaulting to degrees')
             return 'degrees'
-        elif convention.lower().startswith('d'):
+        elif units.lower().strip().startswith('d'):
             return 'degrees'
-        elif convention.lower().startswith('r'):
+        elif units.lower().strip().startswith('r'):
             return 'radians'
-        error_message = f"Unable to parse '{convention}' as either 'degrees' or 'radians'"
+        error_message = f"Unable to parse '{units}' as either 'degrees' or 'radians'"
         raise ValueError(error_message)
-
-    def set_convention(self, convention: str):
-        """
-        Tries to set convention to either 'degrees' or 'radians' based on the convention argument
-        :param convention: angle convention, 'degrees' or 'radians' (or some similar)
-        """
-        self.unit = self.unit_parse(convention)
 
     def sin(self):
         if self.unit == 'degrees':
@@ -58,15 +57,15 @@ class RotationMatrix(np.ndarray):
     Rotation matrices as (n, 3, 3) numpy arrays with attributes describing the rotations they parametrise
     """
 
-    def __new__(cls, rotation_matrix_array: np.ndarray = None, theta: np.ndarray = None, axis: str = None,
-                positive_ccw: bool = None, **kwargs):
+    def __new__(cls, rotation_matrix_array: np.ndarray = None, convention: RotationMatrixConvention = None,
+                parent: object = None):
         """
         Initialisation of rotation matrix object, used by view method of np.ndarray
         :param **kwargs:
         :param rotation_matrix_array: (3, 3) or (n, 3, 3) rotation matrices
         :param theta: (optional) angles from which RotationMatrix can be derived
         :param axis: (optional) string containing info about any axes relative to which the rotation is defined
-        :param positive_ccw: (optional) boolean describing whether the rotation
+        :param convention: (optional) RotationMatrixConvention which describes how the RotationMatrix is defined
         """
         # Flow control, are we creating
         # 1) array from an array containing rotation matrices
@@ -86,8 +85,8 @@ class RotationMatrix(np.ndarray):
 
         # Add attributes
         obj.theta = obj.set_theta(theta)
-        obj.axis = obj.set_axis(axis)
-        obj.positive_ccw = positive_ccw
+        obj.axis = obj.parse_axis(axis)
+        obj.reference_frame = obj.set_reference_frame(reference_frame)
 
         # Reshape if single matrix only
         obj = obj.single_matrix_sanitation()
@@ -99,26 +98,69 @@ class RotationMatrix(np.ndarray):
         self.axis = getattr(obj, 'axis', None)
         self.positive_ccw = getattr(obj, 'positive_ccw', None)
 
-    def set_axis(self, axis):
-        if axis is None:
-            self.axes = axis
+    def set_theta(self, theta: Angles):
+        if not isinstance(theta, Angles):
+            theta = Angles(np.asarray(theta))
+        return theta
+
+    def single_matrix_sanitation(self):
+        """
+        Checks for the case where a single rotation matrix is generated (has shape (1, 3, 3)) and reshapes to (3, 3)
+        """
+        if self.shape == (1, 3, 3):
+            return self.reshape((3, 3))
+        return self
+
+
+class EulerAngleDerivedRotationMatrix(RotationMatrix):
+    """
+    Rotation matrices as (n, 3, 3) numpy arrays with attributes describing the rotations they parametrise
+    """
+
+    def __new__(cls, rotation_matrix_array: np.ndarray = None, theta: np.ndarray = None, axis: str = None, **kwargs):
+        """
+        Initialisation of rotation matrix object, used by view method of np.ndarray
+        :param **kwargs:
+        :param rotation_matrix_array: (3, 3) or (n, 3, 3) rotation matrices
+        :param theta: (optional) angles from which RotationMatrix can be derived
+        :param axis: (optional) string containing info about any axes relative to which the rotation is defined
+        :param convention: (optional) RotationMatrixConvention which describes how the RotationMatrix is defined
+        """
+        # Flow control, are we creating
+        # 1) array from an array containing rotation matrices
+        # 2) rotation matrices from theta and axis (uses Theta2RotationMatrix object)
+        # 3) empty instance?
+        if rotation_matrix_array is not None:
+            obj = np.asarray(rotation_matrix_array, dtype=np.float).view(cls)
+        elif (rotation_matrix_array is None
+              and
+              all([argument is not None for argument in (theta, axis)])
+              and
+              len(axis) == 1):
+            rotation_matrix_array = theta2rotm(theta, axis)
+            obj = np.asarray(rotation_matrix_array, dtype=np.float).view(cls)
+        elif theta is not None:
+            obj = np.zeros((theta.size, 3, 3), dtype=np.float).view(cls)
+
+        # Add attributes
+        obj.theta = obj.set_theta(theta)
+        obj.axis = obj.parse_axis(axis)
+        obj.reference_frame = obj.set_reference_frame(reference_frame)
+
+        # Reshape if single matrix only
+        obj = obj.single_matrix_sanitation()
+        return obj
+
+    def __array_finalize_(self, obj):
+        if obj is None:
             return
+        self.axis = getattr(obj, 'axis', None)
+        self.positive_ccw = getattr(obj, 'positive_ccw', None)
 
-        elif all([axis.lower() in ('x', 'y', 'z') for axis in axis]):
-            self.axes = axis.lower()
-            return
-
-        elif isinstance(axis, np.ndarray) and axis.size == 3:
-            error_message = 'Quaternions are not yet implemented'
-            raise NotImplementedError(error_message)
-
-        error_message = "Axis must be 'x', 'y' or 'z' or a combination thereof such as 'zxz'"
-        raise ValueError(error_message)
-
-    def set_theta(self, theta: np.ndarray):
-        if isinstance(theta, Angles):
-            self.theta = theta
-        self.theta = np.asarray(theta).view(Angles)
+    def set_theta(self, theta: Angles):
+        if not isinstance(theta, Angles):
+            theta = Angles(np.asarray(theta))
+        return theta
 
     def single_matrix_sanitation(self):
         """
@@ -168,7 +210,7 @@ class Theta2RotationMatrix:
         """
         if isinstance(theta, Angles):
             self.theta = theta
-        self.theta = Angles(np.asarray(theta), unit='degrees')
+        self.theta = Angles(np.asarray(theta), units='degrees')
 
     def _prepare_sin_theta(self):
         self.sin_theta = self.theta.sin()
@@ -253,21 +295,21 @@ class Theta2RotationMatrix:
         return self.rotation_matrices
 
 
-class RotX(RotationMatrix):
+class RotX(EulerAngleDerivedRotationMatrix):
     def __new__(cls, theta: np.ndarray):
-        obj = super().__new__(RotationMatrix, theta=theta, axis='x')
+        obj = super().__new__(EulerAngleDerivedRotationMatrix, theta=theta, axis='x')
         return obj
 
 
-class RotY(RotationMatrix):
+class RotY(EulerAngleDerivedRotationMatrix):
     def __new__(cls, theta: np.ndarray):
-        obj = super().__new__(RotationMatrix, theta=theta, axis='y')
+        obj = super().__new__(EulerAngleDerivedRotationMatrix, theta=theta, axis='y')
         return obj
 
 
-class RotZ(RotationMatrix):
+class RotZ(EulerAngleDerivedRotationMatrix):
     def __new__(cls, theta: np.ndarray):
-        obj = super().__new__(RotationMatrix, theta=theta, axis='z')
+        obj = super().__new__(EulerAngleDerivedRotationMatrix, theta=theta, axis='z')
         return obj
 
 
@@ -279,6 +321,11 @@ def theta2rotm(theta: np.ndarray, axis: str):
     :param axis: 'x', 'y' or 'z' axis about which rotation will occur
     :return: rotation matrix or array of rotation matrices
     """
-    matrix_calculator = Theta2RotationMatrix(theta, axis)
-    rotation_matrices = matrix_calculator.get_rotation_matrices()
-    return rotation_matrices
+    return Theta2RotationMatrix(theta, axis).get_rotation_matrices()
+
+
+def axis_check(axis: str):
+    axis = axis.strip()
+    if len(axis) == 1 and axis in ('x', 'y', 'z'):
+        return True
+    return False

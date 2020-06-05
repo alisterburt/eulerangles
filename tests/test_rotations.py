@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 
-from eulerangles.rotations import Theta2RotationMatrix, RotationMatrix, RotX, RotY, RotZ
+from eulerangles.rotations import Theta2RotationMatrix, RotX, RotY, RotZ
 
 
 class RotationsTest(TestCase):
