@@ -57,7 +57,7 @@ class RotationMatrix(np.ndarray):
     Rotation matrices as (n, 3, 3) numpy arrays with attributes describing the rotations they parametrise
     """
 
-    def __new__(cls, rotation_matrix_array: np.ndarray = None, convention: RotationMatrixConvention = None,
+    def __new__(cls, rotation_matrix_array: np.ndarray = None, convention: RotationConvention = None,
                 parent: object = None):
         """
         Initialisation of rotation matrix object, used by view method of np.ndarray
