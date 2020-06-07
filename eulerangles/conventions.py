@@ -206,4 +206,17 @@ EulerAngleConventions = {
                                    reference_frame='rotate_reference',
                                    positive_ccw=False,
                                    extrinsic=True),
+
+    'warp': EulerAngleConvention(software='warp',
+                                 axes='ZYZ',
+                                 reference_frame='rotate_reference',
+                                 positive_ccw=True,
+                                 intrinsic=True),
+
+    'm': EulerAngleConvention(software='warp',
+                              axes='ZYZ',
+                              reference_frame='rotate_reference',
+                              positive_ccw=True,
+                              intrinsic=True),
+
 }
