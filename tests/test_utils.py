@@ -1,16 +1,16 @@
 from unittest import TestCase
 
-from eulerangles.utils import Info
+from eulerangles.utils import MetaData
 
 
-class InfoTest(TestCase):
+class MetaDataTest(TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.test_instantiation()
 
     def test_instantiation(self):
-        self.info = Info()
-        self.assertIsInstance(self.info, Info)
+        self.info = MetaData()
+        self.assertIsInstance(self.info, MetaData)
 
     def test_add_parameter(self):
         self.info.add_parameter('param1')
@@ -35,30 +35,30 @@ class InfoTest(TestCase):
         return parent
 
     def test_get_public_attribute_names(self):
-        info = Info('empty_param')
-        public_attributes = info.get_public_attribute_names()
+        info = MetaData('empty_param')
+        public_attributes = info.public_attribute_names
         self.assertIn('empty_param', public_attributes)
 
     def test_is_empty(self):
-        info = Info('empty_param')
+        info = MetaData('empty_param')
         self.assertTrue(info.is_empty('empty_param'))
         info.add_parameter('not_empty', 1)
         self.assertFalse(info.is_empty('not_empty'))
 
     def test_get_unfilled_attribute_names(self):
-        info = Info('param1', 'param2', param3='not empty!')
-        unfilled_attributes = info.get_unfilled_attribute_names()
+        info = MetaData('param1', 'param2', param3='not empty!')
+        unfilled_attributes = info.unfilled_attribute_names
         attribute_check = [getattr(info, attribute) for attribute in ('param1', 'param2', 'param3')]
         self.assertEqual(attribute_check, [None, None, 'not empty!'])
 
     def test_from_parent(self):
         parent = self.make_parent()
-        info = Info('param1', 'param2', parent=parent)  # not param3
+        info = MetaData('param1', 'param2', parent=parent)  # not param3
         for arg in ('param1', 'param2'):
             self.assertTrue(getattr(info, arg) is not None)
             self.assertTrue(getattr(info, arg) in ('a', 2, {}))
 
-        self.assertFalse(info.exists('param3'))
+        self.assertFalse(info._attribute_exists('param3'))
 
     def test_subclass_replacing_parent_attribute_names(self):
         subclass = TestSubclass()
@@ -67,11 +67,11 @@ class InfoTest(TestCase):
 
 class TestParent:
     def __init__(self):
-        info = Info(param1='a', param2=2, param3={})
+        info = MetaData(param1='a', param2=2, param3={})
         self.info = info
 
 
-class TestSubclass(Info):
+class TestSubclass(MetaData):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._replace_parent_attribute_names('subname')
