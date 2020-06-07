@@ -168,17 +168,42 @@ class EulerAngleConvention(AngleConvention):
 
 
 class EMEulerAngleConvention(EMRotationConvention, EulerAngleConvention):
-    def __init__(self, axes: str = None, reference_frame: str = None, intrinsic: bool = None, extrinsic: bool = None,
+    def __init__(self, software: str = None, axes: str = None, reference_frame: str = None, intrinsic: bool = None,
+                 extrinsic: bool = None,
                  positive_ccw: bool = None, *args, **kwargs):
         kwargs['axes'] = axes
         kwargs['reference_frame'] = reference_frame
         kwargs['intrinsic'] = intrinsic
         kwargs['extrinsic'] = extrinsic
         kwargs['positive_ccw'] = positive_ccw
+        self.software = software
         super().__init__(*args, **kwargs)
 
+    @property
+    def software(self):
+        return self._software
 
-# EulerAngleConventions = {
-#     'relion': EulerAngleConvention('relion', 'ZYZ', 'rotate_reference', True, True),
-#     'dynamo': EulerAngleConvention('dynamo', 'ZXZ', 'rotate_reference', False, True),
-# }
+    @software.setter
+    def software(self, software_name: str = None):
+        if software_name is None:
+            self._software = None
+            return
+
+        assert isinstance(software_name, str)
+        self._software = software_name.strip().lower()
+        return
+
+
+EulerAngleConventions = {
+    'relion': EulerAngleConvention(software='relion',
+                                   axes='ZYZ',
+                                   reference_frame='rotate_reference',
+                                   positive_ccw=True,
+                                   intrinsic=True),
+
+    'dynamo': EulerAngleConvention(software='dynamo',
+                                   axes='ZXZ',
+                                   reference_frame='rotate_reference',
+                                   positive_ccw=False,
+                                   extrinsic=True),
+}
