@@ -50,7 +50,11 @@ class MetaData:
 
     @property
     def _public_attribute_names(self) -> Iterable[str]:
-        return vars(self).keys()
+        public_attribute_names = vars(self).keys()
+        # vars(obj) does not return properties, it does return _property because that's where we store the actual value
+        # remove '_' to fix list of attributes
+        public_attribute_names = [remove_prefix(attribute, '_') for attribute in public_attribute_names]
+        return public_attribute_names
 
     @property
     def unfilled_attribute_names(self) -> List[str]:
@@ -62,7 +66,7 @@ class MetaData:
         unfilled_attributes = []
 
         for attribute in public_attributes:
-            if getattr(self, attribute) is None and attribute != 'parent_attribute_names':
+            if getattr(self, attribute) is None:
                 unfilled_attributes.append(attribute)
 
         return unfilled_attributes
@@ -142,3 +146,8 @@ class MetaData:
             self.add_metadata(parameter_name, value)
         return
 
+
+def remove_prefix(s: str, prefix: str):
+    if s.startswith(prefix):
+        return s[len(prefix):]
+    return s

@@ -8,7 +8,7 @@ class Convention(MetaData):
 
 class AngleConvention(Convention):
     """
-    Convention for angles, provides attributs 'units' and 'positive_ccw'
+    Convention for angles, provides attributes 'units' and 'positive_ccw'
     """
 
     def __init__(self, units: str = None, positive_ccw: bool = None, *args, **kwargs):
@@ -23,36 +23,46 @@ class AngleConvention(Convention):
 
     @property
     def units(self):
-        return self.__units
+        return self._units
 
     @units.setter
     def units(self, units: str):
-        units = self.units.strip().lower()
-        if units in ('degrees', 'degree', 'deg', 'd'):
-            self.__units = 'degrees'
+        if units is None:
+            self._units = None
             return
+
+        elif units in ('degrees', 'degree', 'deg', 'd'):
+            self._units = 'degrees'
+            return
+
         elif units in ('radians', 'radian', 'rad', 'r'):
-            self.__units = 'radians'
+            self._units = 'radians'
             return
+
         raise ValueError(f"Could not parse {units} as 'degrees' or 'radians'")
 
     @property
     def positive_ccw(self):
-        return self.__positive_ccw
+        return self._positive_ccw
 
     @positive_ccw.setter
     def positive_ccw(self, positive_ccw: bool):
-        positive_ccw = self.positive_ccw
-        if isinstance(positive_ccw, bool):
-            self.__positive_ccw = positive_ccw
+        if positive_ccw is None:
+            self._positive_ccw = None
             return
+
+        elif isinstance(positive_ccw, bool):
+            self._positive_ccw = positive_ccw
+            return
+
         elif isinstance(positive_ccw, str):
             if positive_ccw.strip().lower().startswith(('t', 'y')):
-                self.__positive_ccw = True
+                self._positive_ccw = True
                 return
             elif positive_ccw.strip().lower().startswith(('f', 'n')):
-                self.__positive_ccw = False
+                self._positive_ccw = False
                 return
+
         raise ValueError(f"Could not parse '{positive_ccw}' as True or False")
 
 
@@ -72,96 +82,102 @@ class EMRotationConvention(RotationConvention):
 
     @property
     def reference_frame(self):
-        return self.__reference_frame
+        return self._reference_frame
 
     @reference_frame.setter
     def reference_frame(self, reference_frame: str):
-        assert isinstance(self.reference_frame, str)
-        reference_frame = self.reference_frame.strip().lower()
+        if reference_frame is None:
+            self._reference_frame = reference_frame
+            return
+
+        assert isinstance(reference_frame, str)
+
+        reference_frame = reference_frame.strip().lower()
         if reference_frame in ('rr', 'rotate_reference', 'reference', 'ref', 'r', 'rotate reference'):
-            self.__reference_frame = 'rotate_reference'
+            self._reference_frame = 'rotate_reference'
             return
+
         elif reference_frame in ('rp', 'rotate_particle', 'particle', 'p', 'rotate particle'):
-            self.__reference_frame = 'rotate_particle'
+            self._reference_frame = 'rotate_particle'
             return
+
         raise ValueError(f"Could not parse '{reference_frame}' as 'rotate_reference' or 'rotate_particle'")
 
 
 class EulerAngleConvention(AngleConvention):
-    def __init__(self, axes: str = None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, axes: str = None, intrinsic: bool = None, extrinsic: bool = None, positive_ccw: bool = None,
+                 *args, **kwargs):
         self.axes = axes
+        self.intrinsic = intrinsic
+        self.extrinsic = extrinsic
+        super().__init__(*args, **kwargs)
 
     @property
     def axes(self):
-        return self.__axes
+        return self._axes
 
     @axes.setter
-    def axes(self):
-        assert isinstance(self.axes, str)
-        axes = self.axes.strip().lower()
+    def axes(self, axes):
+        if axes is None:
+            self._axes = axes
+            return
+
+        assert isinstance(axes, str)
+        axes = axes.strip().lower()
+
         if len(axes) == 3 and all([axis in ('x', 'y', 'z') for axis in axes]):
-            self.__axes = axes
+            self._axes = axes
+            return
+
         raise ValueError(f"Could not parse '{axes}' as a valid set of axes for Euler angles")
+
+    @property
+    def intrinsic(self):
+        return self._intrinsic
+
+    @intrinsic.setter
+    def intrinsic(self, is_intrinsic: bool):
+        if is_intrinsic:
+            self._set_intrinsic()
+            return
+        elif not is_intrinsic:
+            self._set_extrinsic()
+            return
+        raise TypeError
+
+    @property
+    def extrinsic(self):
+        return self._extrinsic
+
+    @extrinsic.setter
+    def extrinsic(self, is_extrinsic: bool):
+        if is_extrinsic:
+            self.intrinsic = False
+        elif not is_extrinsic:
+            self.intrinsic = True
+
+    def _set_intrinsic(self):
+        self._intrinsic = True
+        self._extrinsic = False
+        return
+
+    def _set_extrinsic(self):
+        self._extrinsic = True
+        self._intrinsic = False
+        return
 
 
 class EMEulerAngleConvention(EMRotationConvention, EulerAngleConvention):
-    def __init__(self, *args, **kwargs):
-        super(EMRotationConvention).__init__(*args, **kwargs)
-        super(EulerAngleConvention).__init__(*args, **kwargs)
+    def __init__(self, axes: str = None, reference_frame: str = None, intrinsic: bool = None, extrinsic: bool = None,
+                 positive_ccw: bool = None, *args, **kwargs):
+        kwargs['axes'] = axes
+        kwargs['reference_frame'] = reference_frame
+        kwargs['intrinsic'] = intrinsic
+        kwargs['extrinsic'] = extrinsic
+        kwargs['positive_ccw'] = positive_ccw
+        super().__init__(*args, **kwargs)
 
 
-
-
-
-# class RotationMatrixConvention(Convention):
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#
-#     def get_parent(self):
-#         return self.parent
-#
-#
-# class ElementalRotationMatrixConvention(RotationMatrixConvention):
-#     def __init__(self, axis: str = None, **kwargs):
-#         super().__init__(**kwargs)
-#         self.axis = self.parse_axis(axis)
-#
-#     @staticmethod
-#     def parse_axis(self, axis):
-#         if axis.strip().lower() in ('x', 'y', 'z'):
-#             return axis.strip.lower()
-#         raise ValueError(f"axis {axis} could not be parsed as 'x', 'y' or 'z'")
-#
-#
-# class EulerAngleRotationMatrixConvention(RotationMatrixConvention):
-#     def __init__(self, axes: str = None, reference_frame: str = None,
-#                  euler_angle_convention: EulerAngleConvention = None, **kwargs):
-#         super().__init__(**kwargs)
-#         if euler_angle_convention is not None:
-#             self.from_euler_angle_convention(euler_angle_convention)
-#         elif axes is not None and reference_frame is not None:
-#             self.axes = self.parse_axes(axes)
-#             self.reference_frame = self.parse_reference_frame(reference_frame)
-#
-#     @staticmethod
-#     def parse_axes(self, axes: str):
-#         axes = axes.strip().lower()
-#         if (len(axes) == 3 and
-#             all([axis_check(axis) for axis in axes]) and
-#             not any(a == b for a, b in zip(axes, axes[1:]))
-#             ):
-#             return axes
-#         raise ValueError(f"Could not parse {axes} as three elemental rotation axes which make valid euler angles")
-#
-
-#     def from_euler_angle_convention(self, euler_angle_convention: EulerAngleConvention):
-#         axes = self.parse_axes(euler_angle_convention.axes)
-#         reference_frame = self.parse_reference_frame(euler_angle_convention.reference_frame)
-#         self.__setattr__('axes', axes)
-#         self.__setattr__('reference_frame', reference_frame)
-#
-#
 # EulerAngleConventions = {
 #     'relion': EulerAngleConvention('relion', 'ZYZ', 'rotate_reference', True, True),
 #     'dynamo': EulerAngleConvention('dynamo', 'ZXZ', 'rotate_reference', False, True),
