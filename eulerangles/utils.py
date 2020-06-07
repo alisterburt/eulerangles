@@ -2,18 +2,24 @@ from typing import List, Iterable, Union
 
 
 class MetaData:
-    def __init__(self, *args, **kwargs):
-        # Initialise empty object
-        self.attribute_suffix = None
-        self.parent = None
-        self.parent_attribute_names = []
-        self._set_attribute_suffix('info')
-        self._add_parent_attribute_name('info')
+    """
+    Metadata which can be associated with any object by inheritance
+    Facilitates passing metadata between objects
+    """
 
-        # Initialise parameters from args and kwargs
+    def __init__(self, *args, **kwargs):
+        # Initialise empty object and check for parent object
+        if 'parent' in kwargs.keys():
+            self.parent = kwargs['parent']
+        else:
+            self.parent = None
+
+        # Initialise parameters from args, parents then kwargs.
+        # Order is important here, args are empty by definition, try to fill from parent
+        # then kwargs have highest priority (will overwrite definitions from parent)
         self._add_from_args(*args)
-        self._add_from_kwargs(**kwargs)
         self._fill_from_parent()
+        self._add_from_kwargs(**kwargs)
 
     def _fill_from_obj(self, obj: object):
         # Check if any objects from args are currently unfilled attributes in this class
@@ -34,26 +40,16 @@ class MetaData:
         return
 
     def _fill_from_parent(self):
-        # Get unfilled attribute names
-        unfilled_attribute_names = self.unfilled_attribute_names
-
         # Return if parent object is None
         if self.parent is None:
             return
 
-        # First try to fill from parent object itself (for compatibility)
+        # Try to fill unfilled attributes from parent object
         self._fill_from_obj(self.parent)
-
-        # Then try to fill from each of parent.parent_attribute name
-        for attribute in self.parent_attribute_names:
-
-            parent_info = getattr(self.parent, attribute, None)
-            if parent_info is not None:
-                self._fill_from_obj(parent_info)
         return
 
     @property
-    def public_attribute_names(self) -> Iterable[str]:
+    def _public_attribute_names(self) -> Iterable[str]:
         return vars(self).keys()
 
     @property
@@ -62,7 +58,7 @@ class MetaData:
         returns a list of attributes names for attributes which are currently None
         :return: unfilled_attributes
         """
-        public_attributes = self.public_attribute_names
+        public_attributes = self._public_attribute_names
         unfilled_attributes = []
 
         for attribute in public_attributes:
@@ -71,24 +67,22 @@ class MetaData:
 
         return unfilled_attributes
 
-    def add_parameter(self, parameter_name: str, value: object = None):
+    def add_metadata(self, parameter_name: str, value: object = None):
         """
-        Adds a new parameter to a convention class, value of parameter defaults to None
+        Adds a new piece of metadata to object, value of parameter defaults to None
         Will overwrite existing parameters
         :param parameter_name: name of parameter to be added
         :param value: default value to be given for the parameter
         """
-        if self.attribute_suffix is not None:
-            info_parameter_name = parameter_name + self.attribute_suffix
-            self._add_default_property_for_info(parameter_name, info_parameter_name)
-        else:
-            info_parameter_name = parameter_name
         setattr(self, parameter_name, value)
         if value is None:
             self._fill_from_parent()
         return
 
-    def is_empty(self, attribute: str) -> Union[bool, None]:
+    def has_metadata(self, attribute_name: str) -> bool:
+        return self._attribute_exists(attribute_name)
+
+    def _attribute_is_empty(self, attribute: str) -> Union[bool, None]:
         """
         returns True if attribute is None in this object
         returns None if attribute is not present
@@ -102,7 +96,7 @@ class MetaData:
             return False
         return None
 
-    def is_filled(self, attribute: str) -> Union[bool, None]:
+    def _attribute_is_filled(self, attribute: str) -> Union[bool, None]:
         """
         returns True if attribute is not None in this object
         returns None if attribute is not present
@@ -110,10 +104,10 @@ class MetaData:
         :param attribute: attribute to check
         :return: bool or None
         """
-        if self.is_empty(attribute):
-            return not self.is_empty(attribute)
-        if self.is_empty(attribute) is False:
-            return not self.is_empty(attribute)
+        if self._attribute_is_empty(attribute):
+            return not self._attribute_is_empty(attribute)
+        if self._attribute_is_empty(attribute) is False:
+            return not self._attribute_is_empty(attribute)
         return None
 
     def _attribute_exists(self, attribute: str) -> bool:
@@ -125,7 +119,7 @@ class MetaData:
         try:
             getattr(self, attribute)
             return True
-        except:
+        except AttributeError:
             return False
 
     def _add_from_args(self, *args):
@@ -136,7 +130,7 @@ class MetaData:
         """
         for arg in args:
             if isinstance(arg, str) and getattr(self, arg, None) is None:
-                self.add_parameter(arg)
+                self.add_metadata(arg)
         return
 
     def _add_from_kwargs(self, **kwargs):
@@ -145,35 +139,6 @@ class MetaData:
         :param kwargs: arguments to be overwritten in convention
         """
         for parameter_name, value in kwargs.items():
-            self.add_parameter(parameter_name, value)
+            self.add_metadata(parameter_name, value)
         return
 
-    def _add_parent_attribute_name(self, parent_attribute_name: str):
-        """
-        Adds a name to the list of attributes to search in a parent object when filling information from the parent
-        object
-        :param parent_attribute_name: name of attribute to add
-        :return:
-        """
-        self.parent_attribute_names.append(parent_attribute_name)
-        return
-
-    def _replace_parent_attribute_names(self, parent_attribute_names: Iterable[str]):
-        if isinstance(parent_attribute_names, Iterable) and not isinstance(parent_attribute_names, str):
-            setattr(self, 'parent_attribute_names', parent_attribute_names)
-            return
-        setattr(self, 'parent_attribute_names', [parent_attribute_names])
-        return
-
-    def _set_attribute_suffix(self, attribute_suffix: str):
-        attribute_suffix = attribute_suffix.strip().lower()
-        if attribute_suffix.startswith('_'):
-            setattr(self, '_info_suffix', attribute_suffix)
-        else:
-            attribute_suffix = '_' + attribute_suffix
-            self._set_attribute_suffix(attribute_suffix)
-        return
-
-    def _add_default_property_for_info(self, parameter_name: str, linked_property: str):
-        setattr(self, parameter_name, property(lambda self: getattr(self, linked_property)))
-        return

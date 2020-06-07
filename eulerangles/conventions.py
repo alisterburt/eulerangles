@@ -4,74 +4,111 @@ from .utils import MetaData
 class Convention(MetaData):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._replace_parent_attribute_names('convention')
-        self._set_attribute_suffix('convention')
 
 
 class AngleConvention(Convention):
+    """
+    Convention for angles, provides attributs 'units' and 'positive_ccw'
+    """
+
     def __init__(self, units: str = None, positive_ccw: bool = None, *args, **kwargs):
+        """
+
+        :param units: 'degrees' or 'radians'
+        :param positive_ccw: do positive angles describe clockwise rotations?
+        """
+        self.units = units
+        self.positive_ccw = positive_ccw
         super().__init__(*args, **kwargs)
-        self.add_parameter('units', units)
-        self.add_parameter('positive_ccw', positive_ccw)
 
     @property
     def units(self):
+        return self.__units
+
+    @units.setter
+    def units(self, units: str):
         units = self.units.strip().lower()
         if units in ('degrees', 'degree', 'deg', 'd'):
-            return 'degrees'
+            self.__units = 'degrees'
+            return
         elif units in ('radians', 'radian', 'rad', 'r'):
-            return 'radians'
+            self.__units = 'radians'
+            return
         raise ValueError(f"Could not parse {units} as 'degrees' or 'radians'")
 
     @property
     def positive_ccw(self):
-        positive_ccw = self.positive_ccw()
+        return self.__positive_ccw
+
+    @positive_ccw.setter
+    def positive_ccw(self, positive_ccw: bool):
+        positive_ccw = self.positive_ccw
         if isinstance(positive_ccw, bool):
-            return positive_ccw
+            self.__positive_ccw = positive_ccw
+            return
         elif isinstance(positive_ccw, str):
             if positive_ccw.strip().lower().startswith(('t', 'y')):
-                return True
+                self.__positive_ccw = True
+                return
             elif positive_ccw.strip().lower().startswith(('f', 'n')):
-                return False
+                self.__positive_ccw = False
+                return
         raise ValueError(f"Could not parse '{positive_ccw}' as True or False")
 
 
-class EMRotationConvention(Convention):
+class RotationConvention(Convention):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class EMRotationConvention(RotationConvention):
     """
     Rotation conventions in electron microscopy single particle analysis and subtomogram averaging
     """
 
     def __init__(self, reference_frame: str = None, *args, **kwargs):
+        self.reference_frame = reference_frame
         super().__init__(*args, **kwargs)
-        self.add_parameter('reference_frame', reference_frame)
 
     @property
-    def get_reference_frame(self):
+    def reference_frame(self):
+        return self.__reference_frame
+
+    @reference_frame.setter
+    def reference_frame(self, reference_frame: str):
         assert isinstance(self.reference_frame, str)
         reference_frame = self.reference_frame.strip().lower()
         if reference_frame in ('rr', 'rotate_reference', 'reference', 'ref', 'r', 'rotate reference'):
-            return 'rotate_reference'
+            self.__reference_frame = 'rotate_reference'
+            return
         elif reference_frame in ('rp', 'rotate_particle', 'particle', 'p', 'rotate particle'):
-            return 'rotate_particle'
+            self.__reference_frame = 'rotate_particle'
+            return
         raise ValueError(f"Could not parse '{reference_frame}' as 'rotate_reference' or 'rotate_particle'")
 
 
-class EulerAngleConvention(Convention, AngleConvention):
+class EulerAngleConvention(AngleConvention):
     def __init__(self, axes: str = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.add_parameter('axes', axes)
+        self.axes = axes
 
     @property
-    def get_axes(self):
+    def axes(self):
+        return self.__axes
+
+    @axes.setter
+    def axes(self):
         assert isinstance(self.axes, str)
         axes = self.axes.strip().lower()
-        if len(axes) == 3 and all([axis in ('x', 'y', 'z') for axes in axes]):
-            return axes
-        raise ValueError(f"Could not parse '{axes}' as a valid set of axes for Euler angles')
+        if len(axes) == 3 and all([axis in ('x', 'y', 'z') for axis in axes]):
+            self.__axes = axes
+        raise ValueError(f"Could not parse '{axes}' as a valid set of axes for Euler angles")
 
 
 class EMEulerAngleConvention(EMRotationConvention, EulerAngleConvention):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super(EMRotationConvention).__init__(*args, **kwargs)
+        super(EulerAngleConvention).__init__(*args, **kwargs)
 
 
 

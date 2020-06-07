@@ -12,11 +12,11 @@ class MetaDataTest(TestCase):
         self.info = MetaData()
         self.assertIsInstance(self.info, MetaData)
 
-    def test_add_parameter(self):
-        self.info.add_parameter('param1')
+    def test_add_metadata(self):
+        self.info.add_metadata('param1')
         self.assertIs(self.info.param1, None)
 
-        self.info.add_parameter('param2', 'not_empty')
+        self.info.add_metadata('param2', 'not_empty')
         self.assertEqual(self.info.param2, 'not_empty')
 
     def test_add_from_args(self):
@@ -36,14 +36,14 @@ class MetaDataTest(TestCase):
 
     def test_get_public_attribute_names(self):
         info = MetaData('empty_param')
-        public_attributes = info.public_attribute_names
+        public_attributes = info._public_attribute_names
         self.assertIn('empty_param', public_attributes)
 
     def test_is_empty(self):
         info = MetaData('empty_param')
-        self.assertTrue(info.is_empty('empty_param'))
-        info.add_parameter('not_empty', 1)
-        self.assertFalse(info.is_empty('not_empty'))
+        self.assertTrue(info._attribute_is_empty('empty_param'))
+        info.add_metadata('not_empty', 1)
+        self.assertFalse(info._attribute_is_empty('not_empty'))
 
     def test_get_unfilled_attribute_names(self):
         info = MetaData('param1', 'param2', param3='not empty!')
@@ -58,20 +58,12 @@ class MetaDataTest(TestCase):
             self.assertTrue(getattr(info, arg) is not None)
             self.assertTrue(getattr(info, arg) in ('a', 2, {}))
 
-        self.assertFalse(info._attribute_exists('param3'))
-
-    def test_subclass_replacing_parent_attribute_names(self):
-        subclass = TestSubclass()
-        self.assertTrue('subname' in subclass.parent_attribute_names)
+        self.assertFalse(info.has_metadata('param3'))
 
 
-class TestParent:
-    def __init__(self):
-        info = MetaData(param1='a', param2=2, param3={})
-        self.info = info
-
-
-class TestSubclass(MetaData):
+class TestParent(MetaData):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._replace_parent_attribute_names('subname')
+        self.param1 = 'a'
+        self.param2 = 2
+        self.param3 = {}

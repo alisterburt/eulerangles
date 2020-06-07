@@ -1,15 +1,13 @@
 from unittest import TestCase
 
-from eulerangles.conventions import Convention
+from eulerangles.conventions import Convention, EMEulerAngleConvention
 
 
 class ConventionTest(TestCase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.test_instantiation()
-
     def test_instantiation(self):
-        self.convention = Convention()
-        self.assertIsInstance(self.convention, Convention)
+        convention = Convention()
+        self.assertIsInstance(convention, Convention)
 
-
+    def test_EMEulerAngleConvention(self):
+        convention = EMEulerAngleConvention()
+        self.assertIsInstance(convention, EMEulerAngleConvention)
