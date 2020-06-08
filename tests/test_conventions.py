@@ -18,6 +18,11 @@ class ConventionTest(TestCase):
         self.assertTrue(convention.has_metadata('axes'))
         self.assertTrue(convention.has_metadata('positive_ccw'))
 
+    def test_EMEulerAngleConvention_w_params(self):
+        convention = EMEulerAngleConvention(axes='zxz', reference_frame='rotate_particle')
+        self.assertTrue(convention.has_metadata('reference_frame'))
+        self.assertEqual(convention.axes, 'zxz')
+
     def test_from_parent(self):
         a = AngleConvention(positive_ccw=True)
         e = EMEulerAngleConvention(axes='ZXZ', reference_frame='rotate_reference', intrinsic=True, parent=a)

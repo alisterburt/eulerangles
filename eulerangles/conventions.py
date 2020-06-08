@@ -107,10 +107,13 @@ class EMRotationConvention(RotationConvention):
 class EulerAngleConvention(AngleConvention):
     def __init__(self, axes: str = None, intrinsic: bool = None, extrinsic: bool = None, positive_ccw: bool = None,
                  *args, **kwargs):
+        # Must set properties before calling super so that properties can be filled from parent objects
         self.axes = axes
         self.intrinsic = intrinsic
         self.extrinsic = extrinsic
         super().__init__(*args, **kwargs)
+        # Set positive_ccw after call to init to override in case was filled by parent (already exists in
+        # AngleConvention
 
     @property
     def axes(self):
@@ -171,13 +174,13 @@ class EMEulerAngleConvention(EMRotationConvention, EulerAngleConvention):
     def __init__(self, software: str = None, axes: str = None, reference_frame: str = None, intrinsic: bool = None,
                  extrinsic: bool = None,
                  positive_ccw: bool = None, *args, **kwargs):
-        kwargs['axes'] = axes
-        kwargs['reference_frame'] = reference_frame
-        kwargs['intrinsic'] = intrinsic
-        kwargs['extrinsic'] = extrinsic
-        kwargs['positive_ccw'] = positive_ccw
-        self.software = software
         super().__init__(*args, **kwargs)
+        self.axes = axes
+        self.reference_frame = reference_frame
+        self.intrinsic = intrinsic
+        self.extrinsic = extrinsic
+        self.positive_ccw = positive_ccw
+        self.software = software
 
     @property
     def software(self):
