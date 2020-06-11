@@ -114,6 +114,7 @@ class EulerAngleConvention(AngleConvention):
         super().__init__(*args, **kwargs)
         # Set positive_ccw after call to init to override in case was filled by parent (already exists in
         # AngleConvention
+        self.positive_ccw = positive_ccw
 
     @property
     def axes(self):
@@ -197,29 +198,51 @@ class EMEulerAngleConvention(EMRotationConvention, EulerAngleConvention):
         return
 
 
-EulerAngleConventions = {
-    'relion': EulerAngleConvention(software='relion',
+class ElementalRotationMatrixConvention(Convention):
+    def __init__(self, axis: str = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.axis = axis
+
+    @property
+    def axis(self):
+        return self._axis
+
+    @axis.setter
+    def axis(self, axis: str):
+        if axis is None:
+            self._axis = None
+            return
+        assert isinstance(axis, str)
+        axis = axis.strip().lower()
+        if axis in ('x', 'y', 'z'):
+            self._axis = axis
+            return
+        raise ValueError(f"Axis must be one of 'x', 'y' or 'z'")
+
+
+euler_angle_conventions = {
+    'relion': EMEulerAngleConvention(software='relion',
+                                     axes='ZYZ',
+                                     reference_frame='rotate_reference',
+                                     positive_ccw=True,
+                                     intrinsic=True),
+
+    'dynamo': EMEulerAngleConvention(software='dynamo',
+                                     axes='ZXZ',
+                                     reference_frame='rotate_reference',
+                                     positive_ccw=False,
+                                     extrinsic=True),
+
+    'warp': EMEulerAngleConvention(software='warp',
                                    axes='ZYZ',
                                    reference_frame='rotate_reference',
                                    positive_ccw=True,
                                    intrinsic=True),
 
-    'dynamo': EulerAngleConvention(software='dynamo',
-                                   axes='ZXZ',
-                                   reference_frame='rotate_reference',
-                                   positive_ccw=False,
-                                   extrinsic=True),
-
-    'warp': EulerAngleConvention(software='warp',
-                                 axes='ZYZ',
-                                 reference_frame='rotate_reference',
-                                 positive_ccw=True,
-                                 intrinsic=True),
-
-    'm': EulerAngleConvention(software='warp',
-                              axes='ZYZ',
-                              reference_frame='rotate_reference',
-                              positive_ccw=True,
-                              intrinsic=True),
+    'm': EMEulerAngleConvention(software='warp',
+                                axes='ZYZ',
+                                reference_frame='rotate_reference',
+                                positive_ccw=True,
+                                intrinsic=True),
 
 }

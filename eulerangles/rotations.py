@@ -1,55 +1,65 @@
-from warnings import warn
-
 import numpy as np
 
+from .conventions import AngleConvention
 
-# from .conventions import RotationMatrixConvention
 
-
-class Angles(np.ndarray):
+class Angles(np.ndarray, AngleConvention):
     """
     Convenience for managing arrays of angles in degree/radians
     """
 
-    def __new__(cls, theta, units: str = None, positive_ccw: bool = None):
+    def __new__(cls, theta: np.ndarray = None, units: str = None, positive_ccw: bool = None):
         obj = np.asarray(theta, dtype=np.float).view(cls)
-        obj.unit = obj.parse_units(units)
-        obj.positive_ccw = positive_ccw
+        obj.__init__(theta, units, positive_ccw)
         return obj
 
-    def __array_finalize_(self, obj):
+    def __init__(self, theta: np.ndarray = None, units: str = None, positive_ccw: bool = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.units = units
+        self.positive_ccw = positive_ccw
+
+    def __array_finalize__(self, obj):
         if obj is None:
             return
-        self.degrees = getattr(obj, 'degrees', None)
-        self.radians = getattr(obj, 'radians', None)
-        unit = getattr(obj, 'convention', None)
-        self.unit = self.parse_units(unit)
+        self.units = getattr(obj, 'units', None)
         self.positive_ccw = getattr(obj, 'positive_ccw', None)
 
-    def parse_units(self, units: str):
-        if units is None:
-            warn(f'No units supplied when creating {self.__name__} object, defaulting to degrees')
-            return 'degrees'
-        elif units.lower().strip().startswith('d'):
-            return 'degrees'
-        elif units.lower().strip().startswith('r'):
-            return 'radians'
-        error_message = f"Unable to parse '{units}' as either 'degrees' or 'radians'"
-        raise ValueError(error_message)
-
     def sin(self):
-        if self.unit == 'degrees':
+        if self.units == 'degrees':
             return np.sin(np.deg2rad(self))
-        elif self.unit == 'radians':
+        elif self.units == 'radians':
             return np.sin(self)
-        raise ValueError(f"Unit improperly set as {self.unit} instead of 'degrees' or 'radians'")
+        self._invalid_units()
 
     def cos(self):
-        if self.unit == 'degrees':
+        if self.units == 'degrees':
             return np.cos(np.deg2rad(self))
-        elif self.unit == 'radians':
+        elif self.units == 'radians':
             return np.cos(self)
-        raise ValueError(f"Unit improperly set as {self.unit} instead of 'degrees' or 'radians'")
+        self._invalid_units()
+
+    def as_degrees(self):
+        if self.units == 'degrees':
+            return self
+        elif self.units == 'radians':
+            obj = np.deg2rad(self)
+            obj.units = 'radians'
+            return obj
+        else:
+            self._invalid_units()
+
+    def as_radians(self):
+        if self.units == 'radians':
+            return self
+        elif self.units == 'degrees':
+            obj = np.rad2deg(self)
+            obj.units = 'radians'
+            return obj
+        else:
+            self._invalid_units()
+
+    def _invalid_units(self):
+        raise AttributeError(f"Units improperly set as {self.units} instead of 'degrees' or 'radians'")
 
 
 class RotationMatrix(np.ndarray):
@@ -57,15 +67,13 @@ class RotationMatrix(np.ndarray):
     Rotation matrices as (n, 3, 3) numpy arrays with attributes describing the rotations they parametrise
     """
 
-    def __new__(cls, rotation_matrix_array: np.ndarray = None, convention: RotationConvention = None,
-                parent: object = None):
+    def __new__(cls, rotation_matrix_array: np.ndarray = None, theta: Angles = None, axis: str = None, **kwargs):
         """
         Initialisation of rotation matrix object, used by view method of np.ndarray
         :param **kwargs:
+        :param **kwargs:
         :param rotation_matrix_array: (3, 3) or (n, 3, 3) rotation matrices
-        :param theta: (optional) angles from which RotationMatrix can be derived
         :param axis: (optional) string containing info about any axes relative to which the rotation is defined
-        :param convention: (optional) RotationMatrixConvention which describes how the RotationMatrix is defined
         """
         # Flow control, are we creating
         # 1) array from an array containing rotation matrices
@@ -82,28 +90,15 @@ class RotationMatrix(np.ndarray):
             obj = np.asarray(rotation_matrix_array, dtype=np.float).view(cls)
         elif theta is not None:
             obj = np.zeros((theta.size, 3, 3), dtype=np.float).view(cls)
-
-        # Add attributes
-        obj.theta = obj.set_theta(theta)
-        obj.axis = obj.parse_axis(axis)
-        obj.reference_frame = obj.set_reference_frame(reference_frame)
-
-        # Reshape if single matrix only
-        obj = obj.single_matrix_sanitation()
         return obj
 
     def __array_finalize_(self, obj):
         if obj is None:
             return
+        self._single_matrix_sanitation()
         self.axis = getattr(obj, 'axis', None)
-        self.positive_ccw = getattr(obj, 'positive_ccw', None)
 
-    def set_theta(self, theta: Angles):
-        if not isinstance(theta, Angles):
-            theta = Angles(np.asarray(theta))
-        return theta
-
-    def single_matrix_sanitation(self):
+    def _single_matrix_sanitation(self):
         """
         Checks for the case where a single rotation matrix is generated (has shape (1, 3, 3)) and reshapes to (3, 3)
         """
@@ -111,221 +106,9 @@ class RotationMatrix(np.ndarray):
             return self.reshape((3, 3))
         return self
 
-
-class EulerAngleDerivedRotationMatrix(RotationMatrix):
-    """
-    Rotation matrices as (n, 3, 3) numpy arrays with attributes describing the rotations they parametrise
-    """
-
-    def __new__(cls, rotation_matrix_array: np.ndarray = None, theta: np.ndarray = None, axis: str = None, **kwargs):
-        """
-        Initialisation of rotation matrix object, used by view method of np.ndarray
-        :param **kwargs:
-        :param rotation_matrix_array: (3, 3) or (n, 3, 3) rotation matrices
-        :param theta: (optional) angles from which RotationMatrix can be derived
-        :param axis: (optional) string containing info about any axes relative to which the rotation is defined
-        :param convention: (optional) RotationMatrixConvention which describes how the RotationMatrix is defined
-        """
-        # Flow control, are we creating
-        # 1) array from an array containing rotation matrices
-        # 2) rotation matrices from theta and axis (uses Theta2RotationMatrix object)
-        # 3) empty instance?
-        if rotation_matrix_array is not None:
-            obj = np.asarray(rotation_matrix_array, dtype=np.float).view(cls)
-        elif (rotation_matrix_array is None
-              and
-              all([argument is not None for argument in (theta, axis)])
-              and
-              len(axis) == 1):
-            rotation_matrix_array = theta2rotm(theta, axis)
-            obj = np.asarray(rotation_matrix_array, dtype=np.float).view(cls)
-        elif theta is not None:
-            obj = np.zeros((theta.size, 3, 3), dtype=np.float).view(cls)
-
-        # Add attributes
-        obj.theta = obj.set_theta(theta)
-        obj.axis = obj.parse_axis(axis)
-        obj.reference_frame = obj.set_reference_frame(reference_frame)
-
-        # Reshape if single matrix only
-        obj = obj.single_matrix_sanitation()
-        return obj
-
-    def __array_finalize_(self, obj):
-        if obj is None:
-            return
-        self.axis = getattr(obj, 'axis', None)
-        self.positive_ccw = getattr(obj, 'positive_ccw', None)
-
-    def set_theta(self, theta: Angles):
-        if not isinstance(theta, Angles):
-            theta = Angles(np.asarray(theta))
-        return theta
-
-    def single_matrix_sanitation(self):
-        """
-        Checks for the case where a single rotation matrix is generated (has shape (1, 3, 3)) and reshapes to (3, 3)
-        """
-        if self.shape == (1, 3, 3):
-            return self.reshape((3, 3))
-        return self
-
-
-class Theta2RotationMatrix:
-    """
-    Object for generating matrices for elemental rotations around the x-, y- or z-axis for a set of angles in degrees
-    Positive values of theta rotate a point ccw around an axis when looking from a positive position on that axis
-    towards the origin
-    """
-
-    def __init__(self, theta: np.ndarray, axis: str, calculate=True):
-        self._preprocess(theta, axis)
-        if calculate:
-            self.generate_rotation_matrices()
-
-    def _preprocess(self, theta: np.ndarray, axis: str):
-        self._parse_theta(theta)
-        self._prepare_sin_theta()
-        self._prepare_cos_theta()
-        self.n = self.theta.size
-        self.set_axis(axis)
-        self._prepare_empty_rotation_matrix()
-
-    def generate_rotation_matrices(self):
-        if self.axis == 'x':
-            self.generate_rotation_matrices_x()
-        elif self.axis == 'y':
-            self.generate_rotation_matrices_y()
-        elif self.axis == 'z':
-            self.generate_rotation_matrices_z()
-        self.rotation_matrices = RotationMatrix(self.rotation_matrices,
-                                                theta=self.theta,
-                                                axis=self.axis,
-                                                positive_ccw=True)
-
-    def _parse_theta(self, theta: np.ndarray):
-        """
-        Prepare theta input in degrees for rotation function vectorisation
-        :param theta: array-like object containing theta in radians
-        """
-        if isinstance(theta, Angles):
-            self.theta = theta
-        self.theta = Angles(np.asarray(theta), units='degrees')
-
-    def _prepare_sin_theta(self):
-        self.sin_theta = self.theta.sin()
-
-    def _prepare_cos_theta(self):
-        self.cos_theta = self.theta.cos()
-
-    def _prepare_empty_rotation_matrix(self):
-        """
-        Prepare an empty (n, 3, 3) array for vectorised rotation matrix generation
-        """
-        shape = (self.n, 3, 3)
-        self.rotation_matrices = np.zeros(shape, dtype=np.float)
-
-    def generate_rotation_matrices_x(self):
-        """
-        vectorised calculation the rotation matrix for an anticlockwise rotation around the x-axis
-        by the angle theta
-
-        rotation_matrix = np.array([[1, 0, 0],
-                                    [0, cos_theta, -sin_theta],
-                                    [0, sin_theta, cos_theta]],
-                                   dtype=np.float)
-
-        :return: rotation_matrix (3,3) or rotation_matrices (n,3,3)
-        """
-        # Generate rotation matrices
-        self.rotation_matrices[:, 0, 0] = 1
-        self.rotation_matrices[:, (1, 2), (2, 1)] = self.cos_theta.reshape((self.n, 1))
-        self.rotation_matrices[:, 2, 1] = self.sin_theta
-        self.rotation_matrices[:, 1, 2] = -self.sin_theta
-
-    def generate_rotation_matrices_y(self):
-        """
-        calculates the rotation matrix for a passive anticlockwise rotation around the y-axis
-        by the angle theta
-
-        rotation_matrix = np.array([[cos_theta, 0, sin_theta],
-                                    [0, 1, 0],
-                                    [-sin_theta, 0, cos_theta]],
-                                   dtype=np.float)
-        """
-        # Generate rotation matrices
-        self.rotation_matrices[:, (0, 2), (0, 2)] = self.cos_theta.reshape(self.n, 1)
-        self.rotation_matrices[:, 1, 1] = 1
-        self.rotation_matrices[:, 0, 2] = self.sin_theta
-        self.rotation_matrices[:, 2, 0] = -self.sin_theta
-
-    def generate_rotation_matrices_z(self):
-        """
-        calculates the rotation matrix for a passive anticlockwise rotation around the z-axis
-        by the angle theta
-
-        rotation_matrix = np.array([[cos_theta, -sin_theta, 0],
-                                    [sin_theta, cos_theta, 0],
-                                    [0, 0, 1]],
-                                   dtype=np.float)
-        """
-        # Generate rotation matrices
-        self.rotation_matrices[:, (0, 1), (0, 1)] = self.cos_theta.reshape(self.n, 1)
-        self.rotation_matrices[:, 0, 1] = -self.sin_theta
-        self.rotation_matrices[:, 1, 0] = self.sin_theta
-        self.rotation_matrices[:, 2, 2] = 1
-
-    def set_axis(self, axis: str):
-        """
-        Makes sure axis entry is lowercase x, y or z
-        :param axis: str 'x', 'y' or 'z'
-        :return: axis
-        """
-        if axis.lower() in ('x', 'y', 'z'):
-            self.axis = axis.lower()
-            return
-
-        error_message = "Axis must be one of 'x', 'y' or 'z'"
-        raise ValueError(error_message)
-
-    def get_rotation_matrix(self):
-        return self.rotation_matrices
-
-    def get_rotation_matrices(self):
-        return self.rotation_matrices
-
-
-class RotX(EulerAngleDerivedRotationMatrix):
-    def __new__(cls, theta: np.ndarray):
-        obj = super().__new__(EulerAngleDerivedRotationMatrix, theta=theta, axis='x')
-        return obj
-
-
-class RotY(EulerAngleDerivedRotationMatrix):
-    def __new__(cls, theta: np.ndarray):
-        obj = super().__new__(EulerAngleDerivedRotationMatrix, theta=theta, axis='y')
-        return obj
-
-
-class RotZ(EulerAngleDerivedRotationMatrix):
-    def __new__(cls, theta: np.ndarray):
-        obj = super().__new__(EulerAngleDerivedRotationMatrix, theta=theta, axis='z')
-        return obj
-
-
-def theta2rotm(theta: np.ndarray, axis: str):
-    """
-    Calculates a set of rotation matrices for CCW rotations around either the 'x', 'y' or 'z' axes by an angle
-    (or angles) of theta
-    :param theta: number or array-like object of rotation angles in degrees
-    :param axis: 'x', 'y' or 'z' axis about which rotation will occur
-    :return: rotation matrix or array of rotation matrices
-    """
-    return Theta2RotationMatrix(theta, axis).get_rotation_matrices()
-
-
-def axis_check(axis: str):
-    axis = axis.strip()
-    if len(axis) == 1 and axis in ('x', 'y', 'z'):
-        return True
-    return False
+#
+# def axis_check(axis: str):
+#     axis = axis.strip()
+#     if len(axis) == 1 and axis in ('x', 'y', 'z'):
+#         return True
+#     return False
