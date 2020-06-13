@@ -249,14 +249,13 @@ euler_angle_conventions = {
                                    axes='zxz',
                                    reference_frame='rotate_reference',
                                    positive_ccw=True,
-                                   intrinsic=True
-                                   )
+                                   intrinsic=True),
 
     'emclarity': EMEulerAngleConvention(software='emclarity',
                                         axes='zxz',
                                         reference_frame='rotate_particle',
                                         positive_ccw=True,
-                                        intrinsic=True)
+                                        intrinsic=True),
 }
 
 
