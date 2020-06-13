@@ -230,7 +230,7 @@ euler_angle_conventions = {
     'dynamo': EMEulerAngleConvention(software='dynamo',
                                      axes='ZXZ',
                                      reference_frame='rotate_reference',
-                                     positive_ccw=False,
+                                     positive_ccw=True,
                                      extrinsic=True),
 
     'warp': EMEulerAngleConvention(software='warp',
@@ -245,4 +245,32 @@ euler_angle_conventions = {
                                 positive_ccw=True,
                                 intrinsic=True),
 
+    'peet': EMEulerAngleConvention(software='peet',
+                                   axes='zxz',
+                                   reference_frame='rotate_reference',
+                                   positive_ccw=True,
+                                   intrinsic=True
+                                   )
+
+    'emclarity': EMEulerAngleConvention(software='emclarity',
+                                        axes='zxz',
+                                        reference_frame='rotate_particle',
+                                        positive_ccw=True,
+                                        intrinsic=True)
 }
+
+
+def get_convention(convention: str):
+    """
+    Gets EMEulerAngleConvention objects from their software package names
+    :param convention:
+    :return: euler angle convention
+    """
+    try:
+        convention = convention.strip().lower()
+        convention = euler_angle_conventions[convention]
+        return convention
+
+    except KeyError:
+        raise NotImplementedError(f"Convention '{convention}' is not yet implemented, "
+                                  f"please create your own EulerAngleConvention object")

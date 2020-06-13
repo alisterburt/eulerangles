@@ -1,6 +1,5 @@
 from typing import List, Iterable, Union
 
-
 class MetaData:
     """
     Metadata which can be associated with any object by inheritance
