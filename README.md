@@ -12,6 +12,7 @@ describing rigid body transformations. It can also convert euler angles into rot
 - Predefined rotation conventions for some software packages used in single particle analysis and subtomogram averaging.
 - Easy definition of custom rotation conventions
 - Easy to install and use
+- Vectorised with numpy for scalability
 
 
 
