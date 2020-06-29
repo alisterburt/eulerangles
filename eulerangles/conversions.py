@@ -725,7 +725,7 @@ def euler2euler(euler_angles: np.ndarray, source_convention: Union[str, EulerAng
     # Invert matrices if one set of eulers describe rotation of the reference and the other
     # rotation of the particles
     # For rotation matrices, inversion is equivalent to the transpose
-    if getattr(self.convention, 'reference_frame', None) != getattr(tc, 'reference_frame', None):
+    if getattr(sc, 'reference_frame', None) != getattr(tc, 'reference_frame', None):
         rotation_matrices = rotation_matrices.transpose((0, 2, 1))
 
     # Calculate euler angles in the target convention
