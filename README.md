@@ -1,5 +1,7 @@
 # eulerangles
 [![Build Status](https://travis-ci.com/alisterburt/eulerangles.svg?branch=master)](https://travis-ci.com/alisterburt/eulerangles)
+[![PyPI version](https://badge.fury.io/py/eulerangles.svg)](https://pypi.org/project/eulerangles/)
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/eulerangles.svg)](https://pypi.python.org/pypi/eulerangles/)
 
 `eulerangles` is a Python package to facilitate conversion between various possible conventions of [euler angles](https://en.wikipedia.org/wiki/Euler_angles)
 describing rigid body transformations. It can also convert euler angles into rotation matrices and convert rotation matrices into euler angles.
