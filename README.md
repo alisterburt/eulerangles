@@ -1,7 +1,7 @@
 # eulerangles
 
 `eulerangles` is a Python package to facilitate conversion between various possible conventions of [euler angles](https://en.wikipedia.org/wiki/Euler_angles)
-describing rigid body transformations or derivation of the corresponding rotation matrix.
+describing rigid body transformations. It can also convert euler angles into rotation matrices and convert rotation matrices into euler angles.
 
 
 ## Features
