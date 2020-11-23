@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-from eulerangles import __version__
+from eulerangles.version import __version__
 
 setup(
     name='eulerangles',
