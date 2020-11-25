@@ -223,39 +223,27 @@ class ElementalRotationMatrixConvention(Convention):
 euler_angle_conventions = {
     'relion': EMEulerAngleConvention(software='relion',
                                      axes='ZYZ',
-                                     reference_frame='rotate_reference',
+                                     reference_frame='rotate_particle',
                                      positive_ccw=True,
                                      intrinsic=True),
 
     'dynamo': EMEulerAngleConvention(software='dynamo',
                                      axes='ZXZ',
-                                     reference_frame='rotate_reference',
+                                     reference_frame='rotate_particle',
                                      positive_ccw=True,
                                      extrinsic=True),
 
     'warp': EMEulerAngleConvention(software='warp',
                                    axes='ZYZ',
-                                   reference_frame='rotate_reference',
+                                   reference_frame='rotate_particle',
                                    positive_ccw=True,
                                    intrinsic=True),
 
     'm': EMEulerAngleConvention(software='warp',
                                 axes='ZYZ',
-                                reference_frame='rotate_reference',
+                                reference_frame='rotate_particle',
                                 positive_ccw=True,
                                 intrinsic=True),
-
-    'peet': EMEulerAngleConvention(software='peet',
-                                   axes='zxz',
-                                   reference_frame='rotate_reference',
-                                   positive_ccw=True,
-                                   intrinsic=True),
-
-    'emclarity': EMEulerAngleConvention(software='emclarity',
-                                        axes='zxz',
-                                        reference_frame='rotate_particle',
-                                        positive_ccw=True,
-                                        intrinsic=True),
 }
 
 
