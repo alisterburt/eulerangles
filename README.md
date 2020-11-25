@@ -133,7 +133,7 @@ array([[ 175.74074302,    6.77816127,   -7.29217251],
        [-172.02754296,   17.30278659,  -17.78403893]])
 ```
 
-For already implemented euler angle conventions (RELION, Dynamo, emClarity, WARP, M, PEET) you can provide the name of 
+For already implemented euler angle conventions (RELION, Dynamo, WARP, M) you can provide the name of 
 the software package directly rather than providing an `EulerAngleConvention` object. 
 
 ```python
