@@ -496,7 +496,7 @@ def matrix2zxy_extrinsic(rotation_matrices: np.ndarray) -> np.ndarray:
     r21 = rotation_matrices[idx, 1, 0]
     r22 = rotation_matrices[idx, 1, 1]
     r13 = rotation_matrices[idx, 0, 2]
-    r33 = rotation_matrices[idx, 2, 0]
+    r33 = rotation_matrices[idx, 2, 2]
     angles_radians[idx, 0] = np.arctan2(r21, r22)
     angles_radians[idx, 2] = np.arctan2(r13, r33)
 
