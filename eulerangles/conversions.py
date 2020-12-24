@@ -654,9 +654,9 @@ def matrix2euler_extrinsic(rotation_matrices: np.ndarray, axes: str):
     elif axes == 'xzy':
         return matrix2xzy_extrinsic(rotation_matrices)
     elif axes == 'yxz':
-        return matrix2xzy_extrinsic(rotation_matrices)
-    elif axes == 'zyx':
         return matrix2yxz_extrinsic(rotation_matrices)
+    elif axes == 'zyx':
+        return matrix2zyx_extrinsic(rotation_matrices)
     raise ValueError('A problem occurred')
 
 
