@@ -212,8 +212,8 @@ def matrix2yzy_extrinsic(rotation_matrices: np.ndarray) -> np.ndarray:
     r21 = rotation_matrices[idx, 1, 0]
     r32 = rotation_matrices[idx, 2, 1]
     r12 = rotation_matrices[idx, 0, 1]
-    angles_radians[idx, 0] = np.arctan2(r23, r21)
-    angles_radians[idx, 2] = np.arctan2(r32, -r12)
+    angles_radians[idx, 0] = np.arctan2(r21, -r23)
+    angles_radians[idx, 2] = np.arctan2(r12, r32)
 
     # convert to degrees
     euler_angles = np.rad2deg(angles_radians)
