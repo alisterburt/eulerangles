@@ -6,9 +6,10 @@
 `eulerangles` is a Python package to facilitate conversion between various possible conventions of [euler angles](https://en.wikipedia.org/wiki/Euler_angles)
 describing rigid body transformations. It can also convert euler angles into rotation matrices and convert rotation matrices into euler angles.
 
+**5/12 of the matrix to euler angle conversion functions are currently broken. Trying to use them will return a `NotImplementedError`. 
+This will hopefully be fixed in the near future.**
 
 ## Features
-- Supports all valid combinations of the x,y,z axes 
 - supports intrinsic and extrinsic rotations
 - Supports both positive CCW and positive CW rotation conventions (see conventions section)
 - Predefined rotation conventions for some software packages used in single particle analysis and subtomogram averaging.
