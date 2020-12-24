@@ -84,8 +84,7 @@ def theta2rotm(theta: np.ndarray, axis: str):
     return rotation_matrices
 
 
-def euler2matrix(euler_angles: np.ndarray, axes: str, intrinsic: bool = None,
-                 extrinsic: bool = None,
+def euler2matrix(euler_angles: np.ndarray, axes: str, intrinsic: bool = None, extrinsic: bool = None,
                  positive_ccw: bool = None) -> np.ndarray:
     """
 
@@ -99,32 +98,27 @@ def euler2matrix(euler_angles: np.ndarray, axes: str, intrinsic: bool = None,
     # Check input
     euler_angles = np.asarray(euler_angles).reshape((-1, 3))
     axes = axes.strip().lower()
-    if axes not in (
-            'xyx', 'yzy', 'zxz', 'xzx', 'yxy', 'zyz', 'xyz', 'yzx', 'zxy', 'xzy', 'yxz', 'zyx'):
+    if axes not in ('xyx', 'yzy', 'zxz', 'xzx', 'yxy', 'zyz', 'xyz', 'yzx', 'zxy', 'xzy', 'yxz', 'zyx'):
         raise ValueError(f'Axes {axes} are not a valid set of euler angle axes')
 
     # Calculate elemental rotation matrices from euler angles
     # Make sure your rotation angles have the correct sign
     if positive_ccw is None:
-        warn(
-            'positive_ccw was not explicitly set, defaulting to considering positive angles as CCW rotations')
+        warn('positive_ccw was not explicitly set, defaulting to considering positive angles as CCW rotations')
         positive_ccw = True
     if positive_ccw:
         # RotationMatrix object creates matrices representing ccw positive rotations looking against axis
-        elemental_rotations = [theta2rotm(theta=euler_angles[:, ax_idx], axis=axes[ax_idx]) for
-                               ax_idx in range(3)]
+        elemental_rotations = [theta2rotm(theta=euler_angles[:, ax_idx], axis=axes[ax_idx]) for ax_idx in range(3)]
     else:
         # While positive ccw looking against axis is standard in maths and physics, some people define positive to
         # mean a clockwise rotation when looking against the axis
         # The effect of this is we need to reverse the sign of the angle to use it with our rotation matrix
         # definitions which are positive ccw looking against the axis.
-        elemental_rotations = [theta2rotm(theta=-1 * euler_angles[:, ax_idx], axis=axes[ax_idx]) for
-                               ax_idx in range(3)]
+        elemental_rotations = [theta2rotm(theta=-1 * euler_angles[:, ax_idx], axis=axes[ax_idx]) for ax_idx in range(3)]
 
     # Compose final rotation matrices from elemental rotation matrices
     if intrinsic and extrinsic:
-        raise ValueError(
-            f"Only one of 'intrinsic': {intrinsic} and 'extrinsic': {extrinsic} can be set to True")
+        raise ValueError(f"Only one of 'intrinsic': {intrinsic} and 'extrinsic': {extrinsic} can be set to True")
 
     elif intrinsic:
         # Intrinsic case,
@@ -140,8 +134,7 @@ def euler2matrix(euler_angles: np.ndarray, axes: str, intrinsic: bool = None,
         # R =  R3(c) * R2(b) * R1(a)
         rotation_matrices = elemental_rotations[2] @ elemental_rotations[1] @ elemental_rotations[0]
     else:
-        raise ValueError(
-            F"One of 'intrinsic': {intrinsic} and 'extrinsic': {extrinsic} must be set to True")
+        raise ValueError(F"One of 'intrinsic': {intrinsic} and 'extrinsic': {extrinsic} must be set to True")
 
     return rotation_matrices
 
@@ -638,21 +631,18 @@ def matrix2zyx_extrinsic(rotation_matrices: np.ndarray) -> np.ndarray:
 
 def matrix2euler_extrinsic(rotation_matrices: np.ndarray, axes: str):
     axes = axes.strip().lower()
-    if axes not in (
-            'xyx', 'yzy', 'zxz', 'xzx', 'yxy', 'zyz', 'xyz', 'yzx', 'zxy', 'xzy', 'yxz', 'zyx'):
+    if axes not in ('xyx', 'yzy', 'zxz', 'xzx', 'yxy', 'zyz', 'xyz', 'yzx', 'zxy', 'xzy', 'yxz', 'zyx'):
         raise ValueError(f'Axes {axes} are not a valid set of euler angle axes')
     elif axes == 'xyx':
         return matrix2xyx_extrinsic(rotation_matrices)
     elif axes == 'yzy':
-        raise NotImplementedError
-        # return matrix2yzy_extrinsic(rotation_matrices) TODO: fix
+        return matrix2yzy_extrinsic(rotation_matrices)
     elif axes == 'zxz':
         return matrix2zxz_extrinsic(rotation_matrices)
     elif axes == 'xzx':
         return matrix2xzx_extrinsic(rotation_matrices)
     elif axes == 'yxy':
-        raise NotImplementedError
-        # return matrix2yzy_extrinsic(rotation_matrices) TODO: fix
+        return matrix2yzy_extrinsic(rotation_matrices)
     elif axes == 'zyz':
         return matrix2zyz_extrinsic(rotation_matrices)
     elif axes == 'xyz':
@@ -660,16 +650,13 @@ def matrix2euler_extrinsic(rotation_matrices: np.ndarray, axes: str):
     elif axes == 'yzx':
         return matrix2yzx_extrinsic(rotation_matrices)
     elif axes == 'zxy':
-        raise NotImplementedError
-        # return matrix2zxy_extrinsic(rotation_matrices) TODO: fix
+        return matrix2zxy_extrinsic(rotation_matrices)
     elif axes == 'xzy':
         return matrix2xzy_extrinsic(rotation_matrices)
     elif axes == 'yxz':
-        raise NotImplementedError
-        # return matrix2xzy_extrinsic(rotation_matrices) TODO: fix
+        return matrix2yxz_extrinsic(rotation_matrices)
     elif axes == 'zyx':
-        raise NotImplementedError
-        # return matrix2yxz_extrinsic(rotation_matrices)
+        return matrix2zyx_extrinsic(rotation_matrices)
     raise ValueError('A problem occurred')
 
 
@@ -685,8 +672,7 @@ def matrix2euler_intrinsic(rotation_matrices: np.ndarray, axes: str):
     return intrinsic_eulers
 
 
-def matrix2euler_positive_ccw(rotation_matrices: np.ndarray, axes: str, intrinsic: bool = None,
-                              extrinsic: bool = None):
+def matrix2euler_positive_ccw(rotation_matrices: np.ndarray, axes: str, intrinsic: bool = None, extrinsic: bool = None):
     """
     Calculates intrinsic or extrinsic euler angles (positive angles are ccw rotations) around a set of three axes from
     a set of rotation matrices
@@ -708,8 +694,7 @@ def matrix2euler_positive_ccw(rotation_matrices: np.ndarray, axes: str, intrinsi
 def matrix2euler(rotation_matrices: np.ndarray, target_axes: str, target_positive_ccw: bool,
                  target_intrinsic: bool = None, target_extrinsic: bool = None) -> np.ndarray:
     if target_positive_ccw:
-        euler_angles = matrix2euler_positive_ccw(rotation_matrices, target_axes, target_intrinsic,
-                                                 target_extrinsic)
+        euler_angles = matrix2euler_positive_ccw(rotation_matrices, target_axes, target_intrinsic, target_extrinsic)
     elif target_positive_ccw is False:
         euler_angles = matrix2euler_positive_ccw(rotation_matrices, target_axes, target_intrinsic,
                                                  target_extrinsic) * -1
@@ -744,6 +729,5 @@ def euler2euler(euler_angles: np.ndarray, source_convention: Union[str, EulerAng
         rotation_matrices = rotation_matrices.transpose((0, 2, 1))
 
     # Calculate euler angles in the target convention
-    euler_angles = matrix2euler(rotation_matrices, tc.axes, tc.positive_ccw, tc.intrinsic,
-                                tc.extrinsic)
+    euler_angles = matrix2euler(rotation_matrices, tc.axes, tc.positive_ccw, tc.intrinsic, tc.extrinsic)
     return euler_angles
