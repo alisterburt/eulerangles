@@ -413,7 +413,7 @@ def matrix2xyz_extrinsic(rotation_matrices: np.ndarray) -> np.ndarray:
     idx = np.invert(gimbal_idx)
     r32 = rotation_matrices[idx, 2, 1]
     r33 = rotation_matrices[idx, 2, 2]
-    r21 = rotation_matrices[idx, 2, 0]
+    r21 = rotation_matrices[idx, 1, 0]
     r11 = rotation_matrices[idx, 0, 0]
     angles_radians[idx, 0] = np.arctan2(r32, r33)
     angles_radians[idx, 2] = np.arctan2(r21, r11)
