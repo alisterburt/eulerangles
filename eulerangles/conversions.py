@@ -100,7 +100,7 @@ def euler2matrix(euler_angles: np.ndarray, axes: str, intrinsic: bool = None,
     euler_angles = np.asarray(euler_angles).reshape((-1, 3))
     axes = axes.strip().lower()
     if axes not in (
-            'xyx', 'yzy', 'zxz', 'xzx', 'yxy', 'zyz', 'xyz', 'yzx', 'zxy', 'xzy', 'yxz', 'zyx'):
+    'xyx', 'yzy', 'zxz', 'xzx', 'yxy', 'zyz', 'xyz', 'yzx', 'zxy', 'xzy', 'yxz', 'zyx'):
         raise ValueError(f'Axes {axes} are not a valid set of euler angle axes')
 
     # Calculate elemental rotation matrices from euler angles
@@ -220,7 +220,7 @@ def matrix2yzy_extrinsic(rotation_matrices: np.ndarray) -> np.ndarray:
     r32 = rotation_matrices[idx, 2, 1]
     r12 = rotation_matrices[idx, 0, 1]
     angles_radians[idx, 0] = np.arctan2(r23, r21)
-    angles_radians[idx, 2] = np.arctan2(r32, r12)
+    angles_radians[idx, 2] = np.arctan2(r32, -r12)
 
     # convert to degrees
     euler_angles = np.rad2deg(angles_radians)
@@ -503,7 +503,7 @@ def matrix2zxy_extrinsic(rotation_matrices: np.ndarray) -> np.ndarray:
     r21 = rotation_matrices[idx, 1, 0]
     r22 = rotation_matrices[idx, 1, 1]
     r13 = rotation_matrices[idx, 0, 2]
-    r33 = rotation_matrices[idx, 2, 0]
+    r33 = rotation_matrices[idx, 2, 2]
     angles_radians[idx, 0] = np.arctan2(r21, r22)
     angles_radians[idx, 2] = np.arctan2(r13, r33)
 
@@ -639,20 +639,18 @@ def matrix2zyx_extrinsic(rotation_matrices: np.ndarray) -> np.ndarray:
 def matrix2euler_extrinsic(rotation_matrices: np.ndarray, axes: str):
     axes = axes.strip().lower()
     if axes not in (
-            'xyx', 'yzy', 'zxz', 'xzx', 'yxy', 'zyz', 'xyz', 'yzx', 'zxy', 'xzy', 'yxz', 'zyx'):
+    'xyx', 'yzy', 'zxz', 'xzx', 'yxy', 'zyz', 'xyz', 'yzx', 'zxy', 'xzy', 'yxz', 'zyx'):
         raise ValueError(f'Axes {axes} are not a valid set of euler angle axes')
     elif axes == 'xyx':
         return matrix2xyx_extrinsic(rotation_matrices)
     elif axes == 'yzy':
-        raise NotImplementedError
-        # return matrix2yzy_extrinsic(rotation_matrices) TODO: fix
+        return matrix2yzy_extrinsic(rotation_matrices)
     elif axes == 'zxz':
         return matrix2zxz_extrinsic(rotation_matrices)
     elif axes == 'xzx':
         return matrix2xzx_extrinsic(rotation_matrices)
     elif axes == 'yxy':
-        raise NotImplementedError
-        # return matrix2yzy_extrinsic(rotation_matrices) TODO: fix
+        return matrix2yxy_extrinsic(rotation_matrices)
     elif axes == 'zyz':
         return matrix2zyz_extrinsic(rotation_matrices)
     elif axes == 'xyz':
@@ -660,16 +658,13 @@ def matrix2euler_extrinsic(rotation_matrices: np.ndarray, axes: str):
     elif axes == 'yzx':
         return matrix2yzx_extrinsic(rotation_matrices)
     elif axes == 'zxy':
-        raise NotImplementedError
-        # return matrix2zxy_extrinsic(rotation_matrices) TODO: fix
+        return matrix2zxy_extrinsic(rotation_matrices)
     elif axes == 'xzy':
         return matrix2xzy_extrinsic(rotation_matrices)
     elif axes == 'yxz':
-        raise NotImplementedError
-        # return matrix2xzy_extrinsic(rotation_matrices) TODO: fix
+        return matrix2yxz_extrinsic(rotation_matrices)
     elif axes == 'zyx':
-        raise NotImplementedError
-        # return matrix2yxz_extrinsic(rotation_matrices)
+        return matrix2zyx_extrinsic(rotation_matrices)
     raise ValueError('A problem occurred')
 
 
