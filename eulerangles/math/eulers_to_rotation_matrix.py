@@ -2,7 +2,7 @@ import numpy as np
 
 from .rotation_matrices.angle_to_matrix import theta2rotm
 from .rotation_matrices.rotation_matrix_composition import compose_rotation_matrices
-from ..constants import valid_axes
+from .constants import valid_axes
 
 
 def euler2matrix(euler_angles: np.ndarray,

@@ -1,6 +1,5 @@
 import numpy as np
-
-from eulerangles.constants import extrinsic_matrix2euler_functions, valid_axes
+from .constants import valid_axes
 
 
 def matrix2xyx_extrinsic(rotation_matrices: np.ndarray) -> np.ndarray:
@@ -511,6 +510,9 @@ def matrix2euler(rotation_matrices: np.ndarray,
                  intrinsic: bool,
                  positive_ccw: bool,
                  ) -> np.ndarray:
+    # Sanitise input
+    rotation_matrices = np.asarray(rotation_matrices).reshape((-1, 3, 3))
+
     # Calculate euler angles for right hand rotations
     euler_angles = matrix2euler_positive_ccw(rotation_matrices, axes, intrinsic)
 
