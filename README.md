@@ -166,7 +166,8 @@ Rotation matrices can also be converted into euler angles with the `matrix2euler
 
 ```python
 from eulerangles import matrix2euler
-eulers = matrix2euler(rotation_matrices, target_axes='ZXZ', target_positive_ccw=True, target_intrinsic=True)
+
+eulers = matrix2euler(rotation_matrices, axes='ZXZ', positive_ccw=True, intrinsic=True)
 ```
 
 ```

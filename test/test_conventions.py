@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from eulerangles.conventions import Convention, AngleConvention, EMEulerAngleConvention
+from eulerangles.base import Convention, AngleConvention, EMEulerAngleConvention
 
 
 class ConventionTest(TestCase):

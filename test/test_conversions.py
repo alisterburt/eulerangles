@@ -3,8 +3,8 @@ from unittest import TestCase
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 
-from eulerangles.conventions import euler_angle_conventions
-from eulerangles.conversions import euler2matrix, matrix2euler
+from eulerangles.base import euler_angle_conventions
+from eulerangles import euler2matrix, matrix2euler
 
 
 class ConversionTest(TestCase):
@@ -56,8 +56,8 @@ class ConversionTest(TestCase):
     def test_xyx_intrinsic_positive_ccw(self):
         eulers = [10., 20., 30.]
         rotation_matrix = euler2matrix(eulers, axes='xyx', intrinsic=True, positive_ccw=True)
-        new_eulers = matrix2euler(rotation_matrix, target_axes='xyx', target_positive_ccw=True,
-                                  target_intrinsic=True)
+        new_eulers = matrix2euler(rotation_matrix, axes='xyx', positive_ccw=True,
+                                  intrinsic=True)
         new_rotation_matrix = euler2matrix(new_eulers, axes='xyx', intrinsic=True,
                                            positive_ccw=True)
         self.assertEqual(eulers, new_eulers)
@@ -66,8 +66,8 @@ class ConversionTest(TestCase):
     def test_yzy_intrinsic_positive_ccw(self):
         eulers = [10., 20., 30.]
         rotation_matrix = euler2matrix(eulers, axes='yzy', intrinsic=True, positive_ccw=True)
-        new_eulers = matrix2euler(rotation_matrix, target_axes='yzy', target_positive_ccw=True,
-                                  target_intrinsic=True)
+        new_eulers = matrix2euler(rotation_matrix, axes='yzy', positive_ccw=True,
+                                  intrinsic=True)
         new_rotation_matrix = euler2matrix(new_eulers, axes='yzy', intrinsic=True,
                                            positive_ccw=True)
         self.assertEqual(eulers, new_eulers)
@@ -76,8 +76,8 @@ class ConversionTest(TestCase):
     def test_zxz_intrinsic_positive_ccw(self):
         eulers = [10., 20., 30.]
         rotation_matrix = euler2matrix(eulers, axes='zxz', intrinsic=True, positive_ccw=True)
-        new_eulers = matrix2euler(rotation_matrix, target_axes='zxz', target_positive_ccw=True,
-                                  target_intrinsic=True)
+        new_eulers = matrix2euler(rotation_matrix, axes='zxz', positive_ccw=True,
+                                  intrinsic=True)
         new_rotation_matrix = euler2matrix(new_eulers, axes='zxz', intrinsic=True,
                                            positive_ccw=True)
         self.assertEqual(eulers, new_eulers)
@@ -86,8 +86,8 @@ class ConversionTest(TestCase):
     def test_xzx_intrinsic_positive_ccw(self):
         eulers = [10., 20., 30.]
         rotation_matrix = euler2matrix(eulers, axes='xzx', intrinsic=True, positive_ccw=True)
-        new_eulers = matrix2euler(rotation_matrix, target_axes='xzx', target_positive_ccw=True,
-                                  target_intrinsic=True)
+        new_eulers = matrix2euler(rotation_matrix, axes='xzx', positive_ccw=True,
+                                  intrinsic=True)
         new_rotation_matrix = euler2matrix(new_eulers, axes='xzx', intrinsic=True,
                                            positive_ccw=True)
         self.assertEqual(eulers, new_eulers)
@@ -96,8 +96,8 @@ class ConversionTest(TestCase):
     def test_yxy_intrinsic_positive_ccw(self):
         eulers = [10., 20., 30.]
         rotation_matrix = euler2matrix(eulers, axes='yxy', intrinsic=True, positive_ccw=True)
-        new_eulers = matrix2euler(rotation_matrix, target_axes='yxy', target_positive_ccw=True,
-                                  target_intrinsic=True)
+        new_eulers = matrix2euler(rotation_matrix, axes='yxy', positive_ccw=True,
+                                  intrinsic=True)
         new_rotation_matrix = euler2matrix(new_eulers, axes='yxy', intrinsic=True,
                                            positive_ccw=True)
         self.assertEqual(eulers, new_eulers)
@@ -106,8 +106,8 @@ class ConversionTest(TestCase):
     def test_zyz_intrinsic_positive_ccw(self):
         eulers = [10., 20., 30.]
         rotation_matrix = euler2matrix(eulers, axes='zyz', intrinsic=True, positive_ccw=True)
-        new_eulers = matrix2euler(rotation_matrix, target_axes='zyz', target_positive_ccw=True,
-                                  target_intrinsic=True)
+        new_eulers = matrix2euler(rotation_matrix, axes='zyz', positive_ccw=True,
+                                  intrinsic=True)
         new_rotation_matrix = euler2matrix(new_eulers, axes='zyz', intrinsic=True,
                                            positive_ccw=True)
         self.assertEqual(eulers, new_eulers)
@@ -116,8 +116,8 @@ class ConversionTest(TestCase):
     def test_xyz_intrinsic_positive_ccw(self):
         eulers = [10., 20., 30.]
         rotation_matrix = euler2matrix(eulers, axes='xyz', intrinsic=True, positive_ccw=True)
-        new_eulers = matrix2euler(rotation_matrix, target_axes='xyz', target_positive_ccw=True,
-                                  target_intrinsic=True)
+        new_eulers = matrix2euler(rotation_matrix, axes='xyz', positive_ccw=True,
+                                  intrinsic=True)
         new_rotation_matrix = euler2matrix(new_eulers, axes='xyz', intrinsic=True,
                                            positive_ccw=True)
         self.assertEqual(eulers, new_eulers)
@@ -126,8 +126,8 @@ class ConversionTest(TestCase):
     def test_yzx_intrinsic_positive_ccw(self):
         eulers = [10., 20., 30.]
         rotation_matrix = euler2matrix(eulers, axes='yzx', intrinsic=True, positive_ccw=True)
-        new_eulers = matrix2euler(rotation_matrix, target_axes='yzx', target_positive_ccw=True,
-                                  target_intrinsic=True)
+        new_eulers = matrix2euler(rotation_matrix, axes='yzx', positive_ccw=True,
+                                  intrinsic=True)
         new_rotation_matrix = euler2matrix(new_eulers, axes='yzx', intrinsic=True,
                                            positive_ccw=True)
         self.assertEqual(eulers, new_eulers)
@@ -136,8 +136,8 @@ class ConversionTest(TestCase):
     def test_zxy_intrinsic_positive_ccw(self):
         eulers = [10., 20., 30.]
         rotation_matrix = euler2matrix(eulers, axes='zxy', intrinsic=True, positive_ccw=True)
-        new_eulers = matrix2euler(rotation_matrix, target_axes='zxy', target_positive_ccw=True,
-                                  target_intrinsic=True)
+        new_eulers = matrix2euler(rotation_matrix, axes='zxy', positive_ccw=True,
+                                  intrinsic=True)
         new_rotation_matrix = euler2matrix(new_eulers, axes='zxy', intrinsic=True,
                                            positive_ccw=True)
         self.assertEqual(eulers, new_eulers)
@@ -146,8 +146,8 @@ class ConversionTest(TestCase):
     def test_xzy_intrinsic_positive_ccw(self):
         eulers = [10., 20., 30.]
         rotation_matrix = euler2matrix(eulers, axes='xzy', intrinsic=True, positive_ccw=True)
-        new_eulers = matrix2euler(rotation_matrix, target_axes='xzy', target_positive_ccw=True,
-                                  target_intrinsic=True)
+        new_eulers = matrix2euler(rotation_matrix, axes='xzy', positive_ccw=True,
+                                  intrinsic=True)
         new_rotation_matrix = euler2matrix(new_eulers, axes='xzy', intrinsic=True,
                                            positive_ccw=True)
         self.assertEqual(eulers, new_eulers)
@@ -156,8 +156,8 @@ class ConversionTest(TestCase):
     def test_yxz_intrinsic_positive_ccw(self):
         eulers = [10., 20., 30.]
         rotation_matrix = euler2matrix(eulers, axes='yxz', intrinsic=True, positive_ccw=True)
-        new_eulers = matrix2euler(rotation_matrix, target_axes='yxz', target_positive_ccw=True,
-                                  target_intrinsic=True)
+        new_eulers = matrix2euler(rotation_matrix, axes='yxz', positive_ccw=True,
+                                  intrinsic=True)
         new_rotation_matrix = euler2matrix(new_eulers, axes='yxz', intrinsic=True,
                                            positive_ccw=True)
         self.assertEqual(eulers, new_eulers)
@@ -166,8 +166,8 @@ class ConversionTest(TestCase):
     def test_zyx_intrinsic_positive_ccw(self):
         eulers = [10., 20., 30.]
         rotation_matrix = euler2matrix(eulers, axes='zyx', intrinsic=True, positive_ccw=True)
-        new_eulers = matrix2euler(rotation_matrix, target_axes='zyx', target_positive_ccw=True,
-                                  target_intrinsic=True)
+        new_eulers = matrix2euler(rotation_matrix, axes='zyx', positive_ccw=True,
+                                  intrinsic=True)
         new_rotation_matrix = euler2matrix(new_eulers, axes='zyx', intrinsic=True,
                                            positive_ccw=True)
         self.assertEqual(eulers, new_eulers)
