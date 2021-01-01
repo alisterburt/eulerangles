@@ -17,8 +17,8 @@ class ConversionMeta:
         False - the euler angles represent extrinsic rotations, the rigid body rotates with
         respect to a fixed coordinate system
     right_handed_rotation: bool
-        True - the euler angles represent right hand rotations in a right handed coordinate system
-        False - the euler angles represent left hand rotations in a right handed coordinate system
+        True - the euler angles represent right handed rotations in a right handed coordinate system
+        False - the euler angles represent left handed rotations in a right handed coordinate system
     active: bool
         True - the transformation is an active transformation
         False - the transformation is a passive transformation
