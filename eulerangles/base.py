@@ -16,20 +16,19 @@ class ConversionMeta:
         the rotating rigid body
         False - the euler angles represent extrinsic rotations, the rigid body rotates with
         respect to a fixed coordinate system
-    positive_ccw: bool
+    right_handed_rotation: bool
         True - the euler angles represent right hand rotations in a right handed coordinate system
         False - the euler angles represent left hand rotations in a right handed coordinate system
-    rotate_reference: bool
-        True - the euler angles represent the rotation aligning a reference coordinate system
-        with an object
-        False - the euler angles represent the inverse rotation
-        this property is compared between EulerAngleConversionMeta objects when deciding whether
-        or not to invert rotation matrices derived from euler angles for conversion
+    active_transformation: bool
+        True - the transformation is an active transformation
+        False - the transformation is a passive transformation
+        this property is compared between ConversionMeta objects when deciding whether
+        or not to invert rotation matrices derived from euler angles during conversion
     """
     software: str
     axes: str
     intrinsic: bool
-    positive_ccw: bool
-    rotate_reference: bool
+    right_handed_rotation: bool
+    active_transformation: bool
 
 
