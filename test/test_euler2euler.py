@@ -1,4 +1,3 @@
-import pytest
 from numpy.testing import assert_array_almost_equal
 
 from eulerangles import euler2euler
@@ -15,11 +14,10 @@ def test_euler2euler_dynamo2relion():
     result_eulers = euler2euler(dynamo_eulers,
                                 source_axes=dynamo_meta.axes,
                                 source_intrinsic=dynamo_meta.intrinsic,
-                                source_positive_ccw=dynamo_meta.positive_ccw,
+                                source_right_handed_rotation=dynamo_meta.right_handed_rotation,
                                 target_axes=relion_meta.axes,
                                 target_intrinsic=relion_meta.intrinsic,
-                                target_positive_ccw=relion_meta.positive_ccw,
+                                target_right_handed_rotation=relion_meta.right_handed_rotation,
                                 invert_matrix=False)
 
     assert_array_almost_equal(relion_eulers, result_eulers, decimal=5)
-

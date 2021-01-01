@@ -15,20 +15,20 @@ def convert_eulers(euler_angles: np.ndarray,
 
     Parameters
     ----------
-    euler_angles : (n, 3) array of float
+    euler_angles : (n, 3) or (3,) array of float
         Euler angles to be converted
 
     source_meta : ConversionMeta or str
         metadata defining how to interpret the euler angles or a string with the name of a
         software package
 
-    target_meta : ConversionMeta
+    target_meta : ConversionMeta or str
         metadata defining how to generate euler angles or a string with the name of a software
         package
 
     Returns
     -------
-    euler_angles : (n, 3) array of float
+    euler_angles : (n, 3) or (3,) array of float
         Euler angles resulting from conversion
     """
     # Attempt to get appropriate conversion metadata if a software package name is provided
@@ -37,8 +37,8 @@ def convert_eulers(euler_angles: np.ndarray,
     if isinstance(target_meta, str):
         target_meta = get_conversion_metadata(target_meta)
 
-    # Check if matrices should be inverted
-    if source_meta.rotate_reference != target_meta.rotate_reference:
+    # Check if desired transformation is of the same type as the input Eulers
+    if source_meta.active != target_meta.active:
         invert_matrix = True
     else:
         invert_matrix = False
@@ -47,10 +47,10 @@ def convert_eulers(euler_angles: np.ndarray,
     final_eulers = euler2euler(euler_angles,
                                source_axes=source_meta.axes,
                                source_intrinsic=source_meta.intrinsic,
-                               source_positive_ccw=source_meta.positive_ccw,
+                               source_right_handed_rotation=source_meta.right_handed_rotation,
                                target_axes=target_meta.axes,
                                target_intrinsic=target_meta.intrinsic,
-                               target_positive_ccw=target_meta.positive_ccw,
+                               target_right_handed_rotation=target_meta.right_handed_rotation,
                                invert_matrix=invert_matrix)
 
     return final_eulers

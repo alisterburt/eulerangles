@@ -1,4 +1,5 @@
 import numpy as np
+
 from .constants import valid_axes
 
 
@@ -469,11 +470,6 @@ def matrix2zyx_extrinsic(rotation_matrices: np.ndarray) -> np.ndarray:
 
 
 def matrix2euler_extrinsic(rotation_matrices: np.ndarray, axes: str):
-    axes = axes.strip().lower()
-
-    if axes not in valid_axes:
-        raise ValueError(f'Axes {axes} are not a valid set of euler angle axes')
-
     matrix2euler_function = extrinsic_matrix2euler_functions[axes]
     return matrix2euler_function(rotation_matrices)
 
@@ -490,15 +486,7 @@ def matrix2euler_intrinsic(rotation_matrices: np.ndarray, axes: str):
     return intrinsic_eulers
 
 
-def matrix2euler_positive_ccw(rotation_matrices: np.ndarray, axes: str, intrinsic: bool):
-    """
-    Calculates intrinsic or extrinsic euler angles (positive angles are ccw rotations) around a set of three axes from
-    a set of rotation matrices
-    :param rotation_matrices: rotation matrix (n,3,3) numpy array
-    :param axes: 'zxz', 'zyz' or similar, three nonconsecutive axes
-    :param intrinsic: fixed object, mobile coordinate system
-    :return:
-    """
+def matrix2euler_right_handed(rotation_matrices: np.ndarray, axes: str, intrinsic: bool):
     if intrinsic:
         return matrix2euler_intrinsic(rotation_matrices, axes)
     else:
@@ -508,16 +496,44 @@ def matrix2euler_positive_ccw(rotation_matrices: np.ndarray, axes: str, intrinsi
 def matrix2euler(rotation_matrices: np.ndarray,
                  axes: str,
                  intrinsic: bool,
-                 positive_ccw: bool,
+                 right_handed_rotation: bool,
                  ) -> np.ndarray:
-    # Sanitise input
+    """
+    Derive a set of euler angles from a set of rotation matrices.
+
+    Parameters
+    ----------
+    rotation_matrices : (n, 3, 3) or (3, 3) array of float
+        rotation matrices from which euler angles are derived
+    axes : str
+        sequence of three non-sequential axes from 'x', 'y', 'z'.
+        e.g. 'zyz', 'xyz' 'yzy'
+    intrinsic : bool
+        True - Euler angles are for intrinsic rotations
+        False - Euler angles are for extrinsic rotations
+    right_handed_rotation : bool
+        True - Euler angles are for right handed rotations
+        False - Euler angles are for left handed rotations
+
+    Returns
+    -------
+    euler_angles : (n, 3) or (3,) array
+        Euler angles derived from rotation matrices
+    """
+    # Sanitise and check input
     rotation_matrices = np.asarray(rotation_matrices).reshape((-1, 3, 3))
+    formatted_axes = axes.strip().lower()
 
-    # Calculate euler angles for right hand rotations
-    euler_angles = matrix2euler_positive_ccw(rotation_matrices, axes, intrinsic)
+    if formatted_axes not in valid_axes:
+        raise ValueError(f'Axes {axes} are not a valid set of euler angle axes')
 
-    # If you want left hand rotations, invert the angles
-    if positive_ccw is False:
+    axes = formatted_axes
+
+    # Calculate euler angles for right handed rotations
+    euler_angles = matrix2euler_right_handed(rotation_matrices, axes, intrinsic)
+
+    # If you want left handed rotations, invert the angles
+    if not right_handed_rotation:
         euler_angles *= -1
 
     return euler_angles.squeeze()
@@ -537,4 +553,3 @@ extrinsic_matrix2euler_functions = {
     'zyx': matrix2zyx_extrinsic,
     'zyz': matrix2zyz_extrinsic,
 }
-

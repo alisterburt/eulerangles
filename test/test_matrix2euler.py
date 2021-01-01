@@ -1,14 +1,13 @@
-import pytest
 import numpy as np
-from numpy.testing import assert_array_almost_equal, assert_array_equal
+from numpy.testing import assert_array_almost_equal
 
 from eulerangles import matrix2euler
 from eulerangles.math.constants import valid_axes
 from eulerangles.utils import get_conversion_metadata
 
 test_matrix_single = np.array([[-0.99985746, 0.00734648, -0.01520186],
-                              [-0.00755692, -0.99987577, 0.01383262],
-                              [-0.01509835, 0.01394553, 0.99978876]])
+                               [-0.00755692, -0.99987577, 0.01383262],
+                               [-0.01509835, 0.01394553, 0.99978876]])
 test_matrix_multiple = np.tile(test_matrix_single, (5, 1))
 
 
@@ -20,7 +19,7 @@ def test_matrix2euler_all_combinations():
                     result = matrix2euler(matrix,
                                           axes=axes,
                                           intrinsic=True,
-                                          positive_ccw=True)
+                                          right_handed_rotation=True)
                     assert result.shape[-1] == 3
 
 
@@ -34,7 +33,7 @@ def test_matrix2euler_dynamo():
     result_eulers = matrix2euler(dynamo_matrix,
                                  axes=dynamo_meta.axes,
                                  intrinsic=dynamo_meta.intrinsic,
-                                 positive_ccw=dynamo_meta.positive_ccw)
+                                 right_handed_rotation=dynamo_meta.right_handed_rotation)
 
     assert_array_almost_equal(dynamo_eulers, result_eulers, decimal=2)
 
@@ -49,6 +48,6 @@ def test_matrix2euler_relion():
     result_eulers = matrix2euler(relion_matrix,
                                  axes=relion_meta.axes,
                                  intrinsic=relion_meta.intrinsic,
-                                 positive_ccw=relion_meta.positive_ccw)
+                                 right_handed_rotation=relion_meta.right_handed_rotation)
 
     assert_array_almost_equal(relion_eulers, result_eulers, decimal=4)

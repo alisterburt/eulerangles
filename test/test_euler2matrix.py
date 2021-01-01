@@ -15,11 +15,11 @@ def test_euler2matrix_all_combinations():
     for eulers in eulers:
         for axes in valid_axes:
             for intrinsic in (True, False):
-                for positive_ccw in (True, False):
+                for right_handed_rotation in (True, False):
                     matrices = euler2matrix(eulers,
                                             axes=axes,
                                             intrinsic=intrinsic,
-                                            positive_ccw=positive_ccw)
+                                            right_handed_rotation=right_handed_rotation)
                     assert matrices.shape[-1] == 3
                     assert matrices.shape[-2] == 3
 
@@ -34,7 +34,7 @@ def test_euler2matrix_dynamo():
     result_matrix = euler2matrix(dynamo_eulers,
                                  axes=dynamo_meta.axes,
                                  intrinsic=dynamo_meta.intrinsic,
-                                 positive_ccw=dynamo_meta.positive_ccw)
+                                 right_handed_rotation=dynamo_meta.right_handed_rotation)
 
     assert_array_almost_equal(dynamo_matrix, result_matrix, decimal=4)
 
@@ -49,6 +49,6 @@ def test_euler2matrix_relion():
     result_matrix = euler2matrix(relion_eulers,
                                  axes=relion_meta.axes,
                                  intrinsic=relion_meta.intrinsic,
-                                 positive_ccw=relion_meta.positive_ccw)
+                                 right_handed_rotation=relion_meta.right_handed_rotation)
 
     assert_array_almost_equal(relion_matrix, result_matrix, decimal=4)

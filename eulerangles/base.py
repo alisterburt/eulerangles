@@ -19,16 +19,16 @@ class ConversionMeta:
     right_handed_rotation: bool
         True - the euler angles represent right hand rotations in a right handed coordinate system
         False - the euler angles represent left hand rotations in a right handed coordinate system
-    active_transformation: bool
+    active: bool
         True - the transformation is an active transformation
         False - the transformation is a passive transformation
-        this property is compared between ConversionMeta objects when deciding whether
-        or not to invert rotation matrices derived from euler angles during conversion
+        this property is only used during comparison of ConversionMeta objects when
+        deciding whether or not to invert rotation matrices during euler angle conversion.
     """
     software: str
     axes: str
     intrinsic: bool
     right_handed_rotation: bool
-    active_transformation: bool
+    active: bool
 
 

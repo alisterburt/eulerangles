@@ -152,7 +152,7 @@ eulers = [[32, 124.5, 18],
           [88, 14, 116]]
 
 # Convert euler angles to rotation matrices
-rotation_matrices = euler2matrix(eulers, axes='ZXZ', extrinsic=True, positive_ccw=False)
+rotation_matrices = euler2matrix(eulers, axes='ZXZ', extrinsic=True, right_handed_rotation=False)
 ```
 
 Output is an (n, 3, 3) array of rotation matrices where n is the number of sets of euler angles provided
@@ -167,7 +167,7 @@ Rotation matrices can also be converted into euler angles with the `matrix2euler
 ```python
 from eulerangles import matrix2euler
 
-eulers = matrix2euler(rotation_matrices, axes='ZXZ', positive_ccw=True, intrinsic=True)
+eulers = matrix2euler(rotation_matrices, axes='ZXZ', right_handed_rotation=True, intrinsic=True)
 ```
 
 ```
