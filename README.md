@@ -53,7 +53,7 @@ In this package
 - sets of three axes are represented by a length 3 string containing only `'x'`, `'y'` or `'z'`
   e.g. `'zxz'`, `'xyz'`, `'zyz'`
 - instrinsic and extrinsic rotations are encoded by the `intrinsic` keyword argument in functions
-    - `True` for intrinsic rotations 
+    - `True` for intrinsic rotations
     - `False` for extrinsic rotations
 - rotation handedness is encoded by the `right_handed_rotation` keyword argument in functions
     - `True` for right handed rotations
