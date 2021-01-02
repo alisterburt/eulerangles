@@ -1,183 +1,202 @@
-# eulerangles
-[![Build Status](https://travis-ci.com/alisterburt/eulerangles.svg?branch=master)](https://travis-ci.com/alisterburt/eulerangles)
-[![PyPI version](https://badge.fury.io/py/eulerangles.svg)](https://pypi.org/project/eulerangles/)
-[![PyPI pyversions](https://img.shields.io/pypi/pyversions/eulerangles.svg)](https://pypi.python.org/pypi/eulerangles/)
+# Quick Start
+[Euler angles](https://en.wikipedia.org/wiki/Euler_angles), often used to represent rigid body rotations in 3D, 
+can be defined in many different ways. 
 
-`eulerangles` is a Python package to facilitate conversion between various possible conventions of [euler angles](https://en.wikipedia.org/wiki/Euler_angles)
-describing rigid body transformations. It can also convert euler angles into rotation matrices and convert rotation matrices into euler angles.
+The world of transformations is filled with 
+[ambiguities](https://rock-learning.github.io/pytransform3d/transformation_ambiguities.html) which can make it harder 
+than necessary to interface softwares which define their transformations differently.
 
+`eulerangles` is designed to simplify the handling of large sets of 
+Euler angles in Python.
 
-## Features
-- Supports all valid combinations of 'x' 'y' and 'z' axes
-- Supports intrinsic and extrinsic rotations
-- Supports both positive CCW and positive CW rotation conventions (see conventions section)
-- Predefined rotation conventions for some software packages used in single particle analysis and subtomogram averaging.
-- Easy definition of custom rotation conventions
-- Easy to install and use
-- Vectorised with numpy for scalability
-
-
+## Documentation
+Complete documentation is provided [here](https://eulerangles.readthedocs.io/en/latest/).
 
 ## Installation
-Installation is available directly from the [Python package index](https://pypi.org/project/eulerangles/)
+If you're already at ease with package management in Python, go ahead and 
 ```
 pip install eulerangles
 ```
 
-## Conventions
-### Angles
-Angles should be given in degrees
+Otherwise, please see the 
+[installation](https://eulerangles.readthedocs.io/en/latest/usage/installation.html) page.
 
-### Axes
-Three euler angles define sequential rotations 
-<a href="https://www.codecogs.com/eqnedit.php?latex=R" target="_blank"><img src="https://latex.codecogs.com/gif.latex?R" title="R" /></a> by angles 
-<a href="https://www.codecogs.com/eqnedit.php?latex=\alpha\beta\gamma" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\alpha\beta\gamma" title="\alpha\beta\gamma" /></a> 
-about three principal axes with indices 
-<a href="https://www.codecogs.com/eqnedit.php?latex=123" target="_blank"><img src="https://latex.codecogs.com/gif.latex?123" title="123" /></a>
+## Overview
+To keep usage simple, the package provides only five functions
+- `euler2matrix`
+- `matrix2euler`
+- `euler2euler`
+- `convert_eulers`
+- `invert_rotation_matrices`
 
+`euler2matrix` converts sets of Euler angles into rotation matrices.
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=\alpha\beta\gamma&space;\mapsto&space;R_{1}(\alpha)\rightarrow&space;R_{2}(\beta)\rightarrow&space;R_{3}(\gamma)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\alpha\beta\gamma&space;\mapsto&space;R_{1}(\alpha)\rightarrow&space;R_{2}(\beta)\rightarrow&space;R_{3}(\gamma)" title="\alpha\beta\gamma \mapsto R_{1}(\alpha)\rightarrow R_{2}(\beta)\rightarrow R_{3}(\gamma)" /></a>
+`matrix2euler` converts sets of rotation matrices into Euler angles.
 
+`euler2euler` converts between sets of Euler angles defined in different ways.
 
-### Rotation Matrices
-All rotation matrices in this package are defined as (3,3) matrices which premultiply column vectors representing points
+`convert_eulers` provides a simpler interface to `euler2euler`.
 
+`invert_rotation_matrices` inverts sets of rotation matrices, yielding the inverse transformation.
 
+## General patterns
+Converting a set of Euler angles into a rotation matrix or vice-versa requires that we know 
+1. about which [axes](https://en.wikipedia.org/wiki/Euler_angles#Chained_rotations_equivalence) rotations occur
+2. whether rotations are [intrinsic](https://en.wikipedia.org/wiki/Euler_angles#Conventions_by_intrinsic_rotations) or
+[extrinsic](https://en.wikipedia.org/wiki/Euler_angles#Conventions_by_extrinsic_rotations)
+3. the [rotation handedness](https://en.wikipedia.org/wiki/Right-hand_rule#A_rotating_body)
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=R&space;\begin{bmatrix}x&space;\\&space;y&space;\\&space;z&space;\end{bmatrix}&space;=&space;\begin{bmatrix}x'&space;\\&space;y'&space;\\&space;z'&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?R&space;\begin{bmatrix}x&space;\\&space;y&space;\\&space;z&space;\end{bmatrix}&space;=&space;\begin{bmatrix}x'&space;\\&space;y'&space;\\&space;z'&space;\end{bmatrix}" title="R \begin{bmatrix}x \\ y \\ z \end{bmatrix} = \begin{bmatrix}x' \\ y' \\ z' \end{bmatrix}" /></a>
+In this package
+- all angles are given in degrees
+- a right handed coordinate system is used
+- rotation matrices premultiply column vectors to produce transformed column vectors
+- sets of three axes are represented by a length 3 string containing only `'x'`, `'y'` or `'z'`
+  e.g. `'zxz'`, `'xyz'`, `'zyz'`
+- instrinsic and extrinsic rotations are encoded by the `intrinsic` keyword argument in functions
+    - `True` for intrinsic rotations 
+    - `False` for extrinsic rotations
+- rotation handedness is encoded by the `right_handed_rotation` keyword argument in functions
+    - `True` for right handed rotations
+    - `False` for left handed rotations
+  
+- `ConversionMeta` objects package up this information for use in the `convert_eulers` function
+- Converting between active and passive transformations is handled by `invert_rotation_matrices` internally
 
-Points are rotated about the origin.
-
-
-### Intrinsic vs Extrinsic
-- Intrinsic rotations are rotations that occur about the axes of a coordinate system attached to a moving body
-- Extrinsic rotations are rotations that occur about the axes of a fixed coordinate system
-
-In this intrinsic case they are defined as
-
-<a href="https://www.codecogs.com/eqnedit.php?latex=R&space;=&space;R_1(\alpha)R_2(\beta)R_3(\gamma)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?R&space;=&space;R_1(\alpha)R_2(\beta)R_3(\gamma)" title="R = R_1(\alpha)R_2(\beta)R_3(\gamma)" /></a>
-
-In the extrinsic case they are defined as
-
-<a href="https://www.codecogs.com/eqnedit.php?latex=R&space;=&space;R_3(\gamma)R_2(\beta)R_1(\alpha)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?R&space;=&space;R_3(\gamma)R_2(\beta)R_1(\alpha)" title="R = R_3(\gamma)R_2(\beta)R_1(\alpha)" /></a>
-
-### Direction of Rotation
-`positive_ccw` in this package means that a positive angle will rotate a point counterclockwise about the given axis when looking from a positive point on that axis towards the origin.
-
-This means that
-
-<a href="https://www.codecogs.com/eqnedit.php?latex=R_z(90)\begin{bmatrix}1&space;\\&space;0&space;\\&space;0&space;\end{bmatrix}&space;=&space;\begin{bmatrix}0&space;\\&space;1&space;\\&space;0&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?R_z(90)\begin{bmatrix}1&space;\\&space;0&space;\\&space;0&space;\end{bmatrix}&space;=&space;\begin{bmatrix}0&space;\\&space;1&space;\\&space;0&space;\end{bmatrix}" title="R_z(90)\begin{bmatrix}1 \\ 0 \\ 0 \end{bmatrix} = \begin{bmatrix}0 \\ 1 \\ 0 \end{bmatrix}" /></a>
-
-<a href="https://www.codecogs.com/eqnedit.php?latex=R_y(90)\begin{bmatrix}0&space;\\&space;0&space;\\&space;1&space;\end{bmatrix}&space;=&space;\begin{bmatrix}1&space;\\&space;0&space;\\&space;0&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?R_y(90)\begin{bmatrix}0&space;\\&space;0&space;\\&space;1&space;\end{bmatrix}&space;=&space;\begin{bmatrix}1&space;\\&space;0&space;\\&space;0&space;\end{bmatrix}" title="R_y(90)\begin{bmatrix}0 \\ 0 \\ 1 \end{bmatrix} = \begin{bmatrix}1 \\ 0 \\ 0 \end{bmatrix}" /></a>
-
-<a href="https://www.codecogs.com/eqnedit.php?latex=R_x(90)\begin{bmatrix}0&space;\\&space;1&space;\\&space;0&space;\end{bmatrix}&space;=&space;\begin{bmatrix}0&space;\\&space;0&space;\\&space;1&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?R_x(90)\begin{bmatrix}0&space;\\&space;1&space;\\&space;0&space;\end{bmatrix}&space;=&space;\begin{bmatrix}0&space;\\&space;0&space;\\&space;1&space;\end{bmatrix}" title="R_x(90)\begin{bmatrix}0 \\ 1 \\ 0 \end{bmatrix} = \begin{bmatrix}0 \\ 0 \\ 1 \end{bmatrix}" /></a>
-
-
-## Usage
-
-### Creation of an EulerAngleConvention
-#### General Case
-```python
-from eulerangles import EulerAngleConvention
-
-convention = EulerAngleConvention(axes='ZXZ', intrinsic=True, positive_ccw=True)
-other_convention = EulerAngleConvention(axes='XYZ', extrinsic=True, positive_ccw=False)
-```
-
-#### Single Particle Analysis and Subtomogram Averaging Conventions
-For convenience, a specific object for dealing with conventions in single particle analysis and subtomogram averaging software packages is provided as `EMEulerAngleConvention` which adds a `reference frame` property describing 
-whether the angles refer to rotations of a reference density map to align it with an experimental image or vice-versa as well as a `software` property containing the name of a given software package
-
-```python
-from eulerangles import EMEulerAngleConvention
-
-convention = EMEulerAngleConvention(software='relion',
-                                    axes='ZYZ',
-                                    reference_frame='rotate_reference',
-                                    positive_ccw=True,
-                                    intrinsic=True),
-```
-
-### Conversion Between Different Euler Angle Conventions
+## Examples
+### `euler2matrix`
 
 ```python
 import numpy as np
-from eulerangles import EulerAngleConvention, euler2euler
+from eulerangles import euler2matrix
 
-# Generate random euler angles
-# Eulers should be an (n, 3) array-like object
-input_shape = (50, 3)
-input_eulers = np.random.randint(0, 180, input_shape)
-
-# Define conventions for input and output euler angles
-input_convention = EulerAngleConvention(axes='ZXZ', intrinsic=True, positive_ccw=True)
-output_convention = EulerAngleConvention(axes='XYZ', extrinsic=True, positive_ccw=False)
-
-# Convert eulers from input convention to output convention
-output_eulers = euler2euler(input_eulers, source_convention=input_convention, target_convention=output_convention)
+eulers = np.array([30, 60, 75])
+rotation_matrix = euler2matrix(eulers,
+                               axes='zyz',
+                               intrinsic=True,
+                               right_handed_rotation=True)
 ```
-
-```
->>> input_eulers[0:5, :]
-array([[144, 172, 122],
-       [ 47,  60, 106],
-       [166,  13,   4],
-       [ 94,  88,  67],
-       [ 51, 161,  66]])
-
->>> output_eulers[0:5, :]
-array([[ 175.74074302,    6.77816127,   -7.29217251],
-       [  25.52064487,   56.35403798, -122.94567298],
-       [ -12.96940458,    0.89911037, -179.08673309],
-       [ -84.89287959,   66.91791209,  -93.68838985],
-       [-172.02754296,   17.30278659,  -17.78403893]])
-```
-
-For already implemented euler angle conventions (RELION, Dynamo, WARP, M) you can provide the name of 
-the software package directly rather than providing an `EulerAngleConvention` object. 
-
 ```python
-output_eulers = euler2euler(input_eulers, source_convention='Dynamo', target_convention='M')
+>>> rotation_matrix
+array([[-0.37089098, -0.54766767,  0.75      ],
+       [ 0.90122107, -0.01733759,  0.4330127 ],
+       [-0.22414387,  0.8365163 ,  0.5       ]])
 ```
-Names are not case sensitive.
 
-### Deriving Rotation Matrices
-A function `euler2matrix` is provided which allows conversion between euler angles and rotation matrices.
+multiple sets of Euler angles can be passed as an (n, 3) array-like object, 
+in which case an (n, 3, 3) array of rotation matrices will be returned.
 
+### `matrix2euler`
 ```python
-from eulerangles import euler2matrix, EulerAngleConvention
-
-# Define some euler angles
-eulers = [[32, 124.5, 18],
-          [88, 14, 116]]
-
-# Convert euler angles to rotation matrices
-rotation_matrices = euler2matrix(eulers, axes='ZXZ', extrinsic=True, right_handed_rotation=False)
-```
-
-Output is an (n, 3, 3) array of rotation matrices where n is the number of sets of euler angles provided
-```
->>> rotation_matrices.shape
-(2, 3, 3)
-```
-
-### Calculating Euler Angles from Rotation Matrices
-Rotation matrices can also be converted into euler angles with the `matrix2euler` function
-
-```python
+import numpy as np
 from eulerangles import matrix2euler
 
-eulers = matrix2euler(rotation_matrices, axes='ZXZ', right_handed_rotation=True, intrinsic=True)
+rotation_matrix = np.array([[-0.37089098, -0.54766767,  0.75      ],
+                            [ 0.90122107, -0.01733759,  0.4330127 ],
+                            [-0.22414387,  0.8365163 ,  0.5       ]])
+eulers = matrix2euler(rotation_matrix,
+                      axes='zyz',
+                      intrinsic=True,
+                      right_handed_rotation=True)
 ```
 
-```
+```python
 >>> eulers
-array([[162. , 124.5, 148. ],
-       [ 64. ,  14. ,  92. ]])
+array([29.99999989, 60.        , 74.99999981])
 ```
 
-## License
-The project is released under the BSD 3-Clause License
+multiple rotation matrices can be passed as an (n, 3, 3) array-like object, 
+in which case an (n, 3) array of Euler angles will be returned.
 
-## Known Issues
-- Tested conventions are Dynamo, RELION, Warp, M - other conventions are taken from the websites of each software package
+### `euler2euler`
+`euler2euler` is a verbose function for converting between sets of Euler angles defined differently.
+- `source_` parameters relate to the input Euler angles
+- `target_` parameters relate to the output Euler angles
+- `invert_matrix` inverts the rotation matrix or matrices before generating output Euler angles
+
+`invert_matrix` is useful when one set of Euler angles describe an active transformation, 
+the other a passive transformation.
+
+```python
+import numpy as np
+from eulerangles import euler2euler
+
+input_eulers = np.array([-47.2730, 1.1777, -132.3000])
+output_eulers = euler2euler(input_eulers,
+                            source_axes='zxz',
+                            source_intrinsic=True,
+                            source_right_handed_rotation=True,
+                            target_axes='zyz',
+                            target_intrinsic=False,
+                            target_right_handed_rotation=False,
+                            invert_matrix=True)
+```
+```python
+>>> output_eulers
+array([ 42.727 ,  -1.1777, 137.7   ])
+```
+
+multiple sets of Euler angles can be passed as an (n, 3) array-like object, 
+in which case an (n, 3) array of Euler angles will be returned.
+
+### `convert_eulers`
+`convert_eulers` provides a simpler interface to the verbose `euler2euler` function. 
+
+Necessary metadata for conversion between input Euler angles and output Euler angles 
+are stored in a `ConversionMeta` objects, defined as follows
+```python
+import numpy as np
+from eulerangles import ConversionMeta, convert_eulers
+
+source_metadata = ConversionMeta(name='input', 
+                                axes='zyz', 
+                                intrinsic=True, 
+                                right_handed_rotation=True, 
+                                active=True)
+
+target_metadata = ConversionMeta(name='output', 
+                                axes='zxz', 
+                                intrinsic=False, 
+                                right_handed_rotation=False, 
+                                active=False)
+```
+
+these objects are used for conversion in `convert_eulers`
+
+```python
+input_eulers = np.array([10, 20, 30])
+output_eulers = convert_eulers(input_eulers, 
+                               source_meta=source_metadata, 
+                               target_meta=target_metadata)
+```
+```python
+>>> output_eulers
+array([-80., -20., 120.])
+```
+
+For a select few software packages for 3D reconstruction from transmission electron microscopy images, 
+`source_meta` and `target_meta` can be passed as a string corresponding to the name of the software package.
+
+### `invert_rotation_matrices`
+`invert_rotation_matrices` inverts rotation matrices such that they represent 
+the inverse transform of the input rotation matrix.
+
+Rotation matrices are orthogonal, therefore their inverse is simply the transpose.
+
+```python
+import numpy as np
+from eulerangles import invert_rotation_matrices
+rotation_matrix = np.array([[-0.37089098, -0.54766767,  0.75      ],
+                            [ 0.90122107, -0.01733759,  0.4330127 ],
+                            [-0.22414387,  0.8365163 ,  0.5       ]])
+
+inverse_matrix = invert_rotation_matrices(rotation_matrix)
+```
+
+```python
+>>> inverse_matrix
+array([[-0.37089098,  0.90122107, -0.22414387],
+       [-0.54766767, -0.01733759,  0.8365163 ],
+       [ 0.75      ,  0.4330127 ,  0.5       ]])
+```
+
+This function works equally well on multiple rotation matrices passed as an (n, 3, 3) array.

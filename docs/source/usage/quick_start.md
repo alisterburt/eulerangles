@@ -17,7 +17,7 @@ If you're already at ease with package management in Python, go ahead and
 pip install eulerangles
 ```
 
-Otherwise, please see the [installation](installation.md) page
+Otherwise, please see the [installation](installation.md) page.
 
 ## Overview
 To keep usage simple, the package provides only five functions
@@ -45,6 +45,8 @@ Converting a set of Euler angles into a rotation matrix or vice-versa requires t
 3. the [rotation handedness](https://en.wikipedia.org/wiki/Right-hand_rule#A_rotating_body)
 
 In this package
+- all angles are given in degrees
+- a right handed coordinate system is assumed
 - rotation matrices premultiply column vectors to produce transformed column vectors
 - sets of three axes are represented by a length 3 string containing only `'x'`, `'y'` or `'z'`
   e.g. `'zxz'`, `'xyz'`, `'zyz'`
@@ -109,7 +111,8 @@ in which case an (n, 3) array of Euler angles will be returned.
 - `target_` parameters relate to the output Euler angles
 - `invert_matrix` inverts the rotation matrix or matrices before generating output Euler angles
 
-`invert_matrix` is useful when one set of Euler angles describe an active transformation, the other a passive.
+`invert_matrix` is useful when one set of Euler angles describe an active transformation, 
+the other a passive transformation.
 
 ```python
 import numpy as np
