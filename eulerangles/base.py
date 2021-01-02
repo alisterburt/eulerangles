@@ -7,7 +7,7 @@ class ConversionMeta:
     A simple object holding metadata explaining how to interpret Euler angles in the context of
     density reconstruction from transmission electron microscopy data.
 
-    software: str
+    name: str
         the name of the software package
     axes: str
         a valid non-sequential sequence of axes e.g. 'zxz', 'yxz'
@@ -25,7 +25,7 @@ class ConversionMeta:
         this property is only used during comparison of ConversionMeta objects when
         deciding whether or not to invert rotation matrices during euler angle conversion.
     """
-    software: str
+    name: str
     axes: str
     intrinsic: bool
     right_handed_rotation: bool
