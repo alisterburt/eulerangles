@@ -4,14 +4,12 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 import recommonmark
-from recommonmark.transform import AutoStructify
 from recommonmark.parser import CommonMarkParser
 
 source_parsers = {
    '.md': CommonMarkParser
 }
 
-import sphinx_bootstrap_theme
 
 # -- Path setup --------------------------------------------------------------
 
@@ -63,12 +61,6 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 html_theme = 'alabaster'
-# html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
-#
-# html_theme_options = {
-#     'bootswatch_theme': "darkly",
-#     'bootstrap_version': "3",
-# }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
