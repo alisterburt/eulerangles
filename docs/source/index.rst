@@ -1,9 +1,16 @@
 The eulerangles documentation
 =======================================
 
-Working with Euler angles can be a pain.
+`Euler angles <https://en.wikipedia.org/wiki/Euler_angles>`_, often used to represent rigid body rotations in 3D,
+can be defined in many different ways.
 
-This Python package is designed to simplify working with Euler angles.
+The world of transformations is filled with
+`ambiguities <https://rock-learning.github.io/pytransform3d/transformation_ambiguities.html>`_ which can make it harder
+than necessary to interface softwares which define their transformations differently.
+
+This package is designed to simplify the handling of large sets of
+Euler angles in Python.
+
 
 .. toctree::
    :maxdepth: 2
