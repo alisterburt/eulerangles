@@ -9,8 +9,12 @@ than necessary to interface softwares which define their transformations differe
 `eulerangles` is designed to simplify the handling of large sets of 
 Euler angles in Python.
 
-Functions are provided for arbitrary conversions of Euler angles into rotation matrices, rotation matrices into
-euler angles and conversion between differently defined Euler angles.
+## Features
+- convert Euler angles into rotation matrices
+- convert rotation matrices into Euler angles
+- convert between differently defined Euler angles
+- simple API
+- vectorised implementation
 
 ## Documentation
 Complete documentation is provided [here](https://eulerangles.readthedocs.io/en/latest/).
