@@ -1,0 +1,6 @@
+numpy
+alabaster
+sphinx
+numpydoc
+recommonmark
+
