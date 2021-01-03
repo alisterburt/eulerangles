@@ -1,15 +1,13 @@
 # Quick Start
-[Euler angles](https://en.wikipedia.org/wiki/Euler_angles), often used to represent rigid body rotations in 3D, 
-can be defined in many different ways. 
+[Euler angles](https://en.wikipedia.org/wiki/Euler_angles) are often used to represent rigid body rotations in 3D.
 
+They can be defined in many different ways.
 The world of transformations is filled with 
 [ambiguities](https://rock-learning.github.io/pytransform3d/transformation_ambiguities.html) which can make it harder 
 than necessary to interface softwares which define their transformations differently.
 
 `eulerangles` is designed to simplify the handling of large sets of 
 Euler angles in Python.
-
-
 
 ## Installation
 If you're already at ease with package management in Python, go ahead and 
