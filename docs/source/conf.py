@@ -19,7 +19,10 @@ source_parsers = {
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../..'))
+conf_path = os.path.join(
+    os.path.dirname(__file__),
+    '../..')
+sys.path.insert(0, conf_path)
 sys.setrecursionlimit(1500)
 
 
@@ -30,7 +33,8 @@ copyright = '2021, Alister Burt'
 author = 'Alister Burt'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+from eulerangles import __version__
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------

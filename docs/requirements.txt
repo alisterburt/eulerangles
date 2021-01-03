@@ -1,4 +1,6 @@
 numpy
-eulerangles
-numpydoc
+alabaster
 sphinx
+numpydoc
+recommonmark
+
