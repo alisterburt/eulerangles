@@ -1,7 +1,7 @@
 # Quick Start
 [Euler angles](https://en.wikipedia.org/wiki/Euler_angles) are often used to represent rigid body rotations in 3D.
 
-They can be defined in many different ways.
+These transformations can be defined in many different ways.
 The world of transformations is filled with 
 [ambiguities](https://rock-learning.github.io/pytransform3d/transformation_ambiguities.html) which can make it harder 
 than necessary to interface softwares which define their transformations differently.
