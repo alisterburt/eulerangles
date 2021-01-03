@@ -4,7 +4,6 @@
 [![PyPI version](https://badge.fury.io/py/eulerangles.svg)](https://pypi.org/project/eulerangles/)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/eulerangles.svg)](https://pypi.python.org/pypi/eulerangles/)
 
-# Quick Start
 [Euler angles](https://en.wikipedia.org/wiki/Euler_angles) are often used to represent rigid body rotations in 3D. 
 
 They can be defined in many different ways. The world of transformations is filled with 
@@ -22,7 +21,7 @@ Euler angles in Python.
 - vectorised implementation
 
 ## Documentation
-Complete documentation is provided [here](https://eulerangles.readthedocs.io/en/latest/).
+Complete documentation is provided on [readthedocs.io](https://eulerangles.readthedocs.io/en/latest/).
 - [Quick Start](https://eulerangles.readthedocs.io/en/latest/usage/quick_start.html)
 - [Installation](https://eulerangles.readthedocs.io/en/latest/usage/installation.html)
 - [API Reference](https://eulerangles.readthedocs.io/en/latest/api.html)
