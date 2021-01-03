@@ -506,8 +506,8 @@ def matrix2euler(rotation_matrices: np.ndarray,
     rotation_matrices : (n, 3, 3) or (3, 3) array of float
         rotation matrices from which euler angles are derived
     axes : str
-        sequence of three non-sequential axes from 'x', 'y', 'z'.
-        e.g. 'zyz', 'xyz' 'yzy'
+        valid sequence of three non-sequential axes from 'x', 'y' and 'z'
+        e.g. 'zyz', 'zxz', 'xyz'
     intrinsic : bool
         True - Euler angles are for intrinsic rotations
         False - Euler angles are for extrinsic rotations

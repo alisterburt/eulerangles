@@ -18,6 +18,7 @@ def euler2matrix(euler_angles: np.ndarray,
         euler angles (in degrees)
     axes : str
         valid sequence of three non-sequential axes from 'x', 'y' and 'z'
+        e.g. 'zyz', 'zxz', 'xyz'
     intrinsic : bool
         True - Euler angles are interpreted as intrinsic rotations
         False - Euler angles are interpreted as extrinsic rotations
