@@ -4,7 +4,7 @@ from eulerangles.version import __version__
 
 setup(
     name='eulerangles',
-    packages=find_packages(exclude='test*'),
+    packages=find_packages(include=['eulerangles', '*'], exclude=['test',]),
     version=f'{__version__}',
     license='BSD 3-Clause License',
     description="""Simplify the handling of large sets of Euler angles in Python
