@@ -10,7 +10,7 @@ def theta2rotx(theta: np.ndarray) -> np.ndarray:
     :return: rotation_matrices
     """
     theta = np.deg2rad(np.asarray(theta).reshape(-1))
-    rotation_matrices = np.zeros((theta.shape[0], 3, 3), dtype=np.float)
+    rotation_matrices = np.zeros((theta.shape[0], 3, 3), dtype=float)
     cos_theta = np.cos(theta)
     sin_theta = np.sin(theta)
     rotation_matrices[:, 0, 0] = 1
@@ -29,7 +29,7 @@ def theta2roty(theta: np.ndarray) -> np.ndarray:
     :return: rotation_matrices
     """
     theta = np.deg2rad(np.asarray(theta).reshape(-1))
-    rotation_matrices = np.zeros((theta.shape[0], 3, 3), dtype=np.float)
+    rotation_matrices = np.zeros((theta.shape[0], 3, 3), dtype=float)
     cos_theta = np.cos(theta)
     sin_theta = np.sin(theta)
     rotation_matrices[:, 1, 1] = 1
@@ -48,7 +48,7 @@ def theta2rotz(theta: np.ndarray) -> np.ndarray:
     :return: rotation_matrices
     """
     theta = np.deg2rad(np.asarray(theta).reshape(-1))
-    rotation_matrices = np.zeros((theta.shape[0], 3, 3), dtype=np.float)
+    rotation_matrices = np.zeros((theta.shape[0], 3, 3), dtype=float)
     cos_theta = np.cos(theta)
     sin_theta = np.sin(theta)
     rotation_matrices[:, 2, 2] = 1
