@@ -37,7 +37,7 @@ jobs:
           pip install -e .
 
       - name: Test with pytest
-        run: pytest
+        run: pytest -W "ignore::DeprecationWarning"
         env:
           PLATFORM: ${{ matrix.platform }}
 
